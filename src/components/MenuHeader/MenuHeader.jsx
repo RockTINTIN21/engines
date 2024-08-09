@@ -8,7 +8,7 @@ function MenuHeader({ title, pathToMain, titleButtonMain, pathToSearch, titleBut
     const [isSearchHovered, setIsSearchHovered] = useState(false);
 
     return (
-        <div className={`container-fluid ${styles.menuHeader} styles-card p-2 mb-3 mb-md-5`}>
+        <div className={`container-fluid ${styles.menuHeader} styles-card p-2 mb-3 mb-md-4`}>
 
                 <div className="d-flex flex-column flex-md-row justify-content-md-between bd-highlighto">
                     <div className="p-2">
@@ -39,8 +39,8 @@ function MenuHeader({ title, pathToMain, titleButtonMain, pathToSearch, titleBut
                                 onMouseEnter={() => setIsSearchHovered(true)}
                                 onMouseLeave={() => setIsSearchHovered(false)}
                             >
-                                <Link to={pathToSearch} className="text-decoration-none text-white">
-                                    <img
+                                <Link to={pathToSearch} className={`text-decoration-none ${styles.link}`}>
+                                    <img width="30px"
                                         src={imgPathToSearch}
                                         alt="btn"
                                         className={`${styles.icon} ${isSearchHovered ? styles.hover : ''}`}

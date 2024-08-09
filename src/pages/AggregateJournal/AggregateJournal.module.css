@@ -1,0 +1,16 @@
+.btnSubmit{
+    border-bottom-left-radius:0!important;
+    border-top-left-radius:0!important;
+    box-shadow: none!important;
+}
+.formSearch{
+    border-bottom-right-radius:0!important;
+    border-top-right-radius:0!important;
+}
+.icon {
+    filter: invert(0%);
+
+}
+.icon.hover {
+    filter: invert(100%);
+}

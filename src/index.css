@@ -21,3 +21,31 @@ a{
 .bg-gray{
   background-color: #E2E2E2;
 }
+.btn{
+  background-color: #77C1E7;
+  border: none;
+  color: black;
+}
+.btn:hover{
+  background-color: #008FD1;
+}
+
+
+.selectMenu{
+  background-color: #77C1E7;
+  color:black;
+}
+.selectMenu:hover{
+  background-color: #008FD1;
+  color:white;
+  transition: 0.3s;
+}
+.selectMenu option {
+  background-color: white;
+  color: black;
+}
+input:focus, textarea:focus,.form-select:focus,select:focus {
+  outline: none!important;  /* До свидания, подсветка. */
+  box-shadow: none!important; /* До свидания, тень. */
+}
+
