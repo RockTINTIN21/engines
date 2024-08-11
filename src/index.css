@@ -48,4 +48,9 @@ input:focus, textarea:focus,.form-select:focus,select:focus {
   outline: none!important;  /* До свидания, подсветка. */
   box-shadow: none!important; /* До свидания, тень. */
 }
+.btn:disabled{
+  background-color:#AFC6D2;
+  color: black;
+  transition: 0.3s;
+}
 
