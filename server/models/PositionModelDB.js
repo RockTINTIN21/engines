@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 
-// Определение схемы для `Position`
+// Определяем схему для местоположений
 const positionSchema = new mongoose.Schema({
-    position: { type: String, required: true },  // Основное место (position)
-    installationPlaces: [{ type: String, required: true }]  // Массив установок (installationPlaces)
+    position: { type: String, required: true },  // Хранит значение в исходном виде
+    positionLowerCase: { type: String, required: true, unique: true },  // Хранит значение в нижнем регистре для проверки уникальности
+    installationPlaces: [String]  // Массив мест установки
 });
 
-// Модель для `Position`
-const PositionModel = mongoose.model('Position', positionSchema);
+const PositionModelDB = mongoose.model('Position', positionSchema);
 
-export default PositionModel;
+export default PositionModelDB;

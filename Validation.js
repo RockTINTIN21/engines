@@ -69,6 +69,64 @@ export const fetchData = async (values, action, method) => {
             }
         case 'addPosition':
             console.log('В фетч:', values);
-        // Другие кейсы...
+            try {
+                const response = await fetch("http://localhost:3000/api/addPosition", requestOptions);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ответ от сервера:', data);
+
+                return data;
+            } catch (error) {
+
+                console.error('Ошибка при выполнении fetch:', error);
+                throw error; // или обработайте ошибку по-другому
+            }
+        case 'delPosition':
+            console.log('В фетч:', values);
+            try {
+                const response = await fetch("http://localhost:3000/api/delPosition", requestOptions);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ответ от сервера:', data);
+
+                return data;
+            } catch (error) {
+
+                console.error('Ошибка при выполнении fetch:', error);
+                throw error; // или обработайте ошибку по-другому
+            }
     }
 };
+export const getFetchData = async (action) => {
+    const requestOptions = {
+        method: 'GET'
+    };
+    switch (action){
+        case 'getPositions':
+            console.log('В фетч:');
+            try {
+                const response = await fetch("http://localhost:3000/api/getPositions", requestOptions);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ответ от сервера:', data);
+
+                return data;
+            } catch (error) {
+
+                console.error('Ошибка при выполнении fetch:', error);
+                throw error; // или обработайте ошибку по-другому
+            }
+    }
+}

@@ -2,8 +2,9 @@ import MenuHeader from "../../components/MenuHeader/MenuHeader.jsx";
 import MenuIcon from "../../assets/icons/MenuIcon.svg"
 import search from '../../assets/icons/SearchIcon.svg'
 import Button from 'react-bootstrap/Button';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import UniversalModal from "../../components/Modals/UniversalModal/UniversalModal.jsx";
+import {fetchData, getFetchData} from "../../../Validation.js";
 
 function EditDataBase(){
     const [showModal, setShowModal] = useState(false);
@@ -13,14 +14,34 @@ function EditDataBase(){
     const [action,setAction] = useState('')
     const [method,setMethod] = useState('')
     const [initialValues, setInitialValues] = useState({})
+    const [formSelectPosition, setFormSelectPosition] = useState()
+    const [installationPlaces, setInstallationPlaces] = useState([]);
     const handleDataSubmission = ()=>{
         setShowModal(false);
     }
 
     const closeModal = () => {
         setShowModal(false);
-    },
-    formSelectPosition = ['Склад №1', 'Склад №2']
+    }
+    // formSelectPosition = ['Склад №1', 'Склад №2']
+    const getFromServer = async () => {
+        const response = await getFetchData('getPositions');
+        if (response.status === 'error') {
+            console.log('Ошибка:', response.error);
+        } else {
+            let arr = response.data.map(position => position.position);
+            setFormSelectPosition(arr);
+            console.log('Успешно!');
+        }
+    }
+
+    useEffect(() => {
+        getFromServer();
+    }, []);
+
+    useEffect(() => {
+        console.log(formSelectPosition);
+    }, [formSelectPosition]);
     const saveFormType = (formType) => {
         switch (formType){
             case 'addPosition':
@@ -38,10 +59,10 @@ function EditDataBase(){
                 break
             case 'delPosition':
                 setFormFields([
-                    {id:'position',label:'Место нахождения:',formType:'selectMenu',selectMenu: formSelectPosition},
+                    {id:'position',label:'Место нахождения:',formType:'selectMenu',selectMenu: formSelectPosition,isPosition:true},
                 ])
                 setInitialValues({
-                    installationTitle:'',
+                    position:formSelectPosition[0],
                 })
                 setAction('delPosition')
                 setMethod('DELETE')
@@ -50,11 +71,11 @@ function EditDataBase(){
 
             case 'addInstallationPlace':
                 setFormFields([
-                    {id:'position',label:'Место нахождения:',formType: 'selectMenu'},
+                    {id:'position',label:'Место нахождения:',formType: 'selectMenu',selectMenu:formSelectPosition},
                     {id:'installationPlace',label:'Необязательно - Места установки(Через запятую):',formType:'fieldTextArea'}
                 ])
                 setInitialValues({
-                    installationTitle:'',
+                    position:formSelectPosition[0],
                     installationPlace:''
                 })
                 setModalTitle('Добавить место установки')
@@ -87,7 +108,7 @@ function EditDataBase(){
                     <Button className='m-2 col-auto' onClick={()=>saveFormType('delPosition')}>Удалить место нахождения</Button>
                 </div>
                 <div className="col-12 styles-card bg-gray mt-3 mt-md-3 d-flex flex-column flex-md-row pt-3 pb-3 p-md-auto">
-                    <Button className='m-2 col-auto'>Добавить место установки</Button>
+                    <Button className='m-2 col-auto' onClick={()=>saveFormType('addInstallationPlace')}>Добавить место установки</Button>
                     <Button className='m-2 col-auto'>Удалить место установки</Button>
                 </div>
             </div>

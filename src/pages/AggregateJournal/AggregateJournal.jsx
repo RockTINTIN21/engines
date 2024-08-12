@@ -26,13 +26,14 @@ function AggregateJournal(){
         const response = await fetchData(values);
         if(response.status === 'error'){
             const nameField = response.errors.field
-            setSelectMenuValuesFromDB();
+
             console.log('Ошибка')
             // setTimeout(() => {
             //     setServerErrors({[nameField]:false });
             // }, 3000);
         }else{
             console.log('Успешно!');
+            setSelectMenuValuesFromDB();
             // setShowSuccessModal(true);
             // onSubmit();
         }

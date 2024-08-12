@@ -1,6 +1,6 @@
 
 // import styles from './MenuCard.module.css';
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import successIcon from '../../../assets/icons/mark.png';
 
 import { Modal, Button } from 'react-bootstrap';
@@ -13,22 +13,60 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [serverErrors, setServerErrors] = useState({});
     const closeUniversalModal = () => setShowSuccessModal(false);
+    useEffect(() => {
+        formFields.map((field) =>{
+            if(field.isPosition){
+                console.log('TES')
+            }
+        })
+    }, [initialValues]);
+    // const changePosition = ((e,isPosition)=>{
+    //     console.log()
+    //     if(isPosition === true){
+    //         console.log('Да, это position')
+    //     }
+    // })
+
     const submitOnServer =  async (values,action,method) => {
-        switch (action){
-            case 'addPosition':
-                const response = await fetchData(values,action,method);
-                if(response.status === 'error'){
-                    const nameField = response.errors.field
-                    setServerErrors({[nameField]:response.errors.message });
-                    setTimeout(() => {
-                        setServerErrors({[nameField]:false });
-                    }, 3000);
-                }else{
-                    console.log('Успешно!');
-                    setShowSuccessModal(true);
-                    onSubmit();
-                }
-                break
+        const response = await fetchData(values,action,method);
+        // switch (action){
+        //     case 'addPosition':
+        //         if(response.status === 'error'){
+        //             const nameField = response.errors.field
+        //             setServerErrors({[nameField]:response.errors.message });
+        //             setTimeout(() => {
+        //                 setServerErrors({[nameField]:false });
+        //             }, 3000);
+        //         }else{
+        //             console.log('Успешно!');
+        //             setShowSuccessModal(true);
+        //             onSubmit();
+        //         }
+        //         break
+        //     case 'addInstallationPlace':
+        //         if(response.status === 'error'){
+        //             const nameField = response.errors.field
+        //             setServerErrors({[nameField]:response.errors.message });
+        //             setTimeout(() => {
+        //                 setServerErrors({[nameField]:false });
+        //             }, 3000);
+        //         }else{
+        //             console.log('Успешно!');
+        //             setShowSuccessModal(true);
+        //             onSubmit();
+        //         }
+        //         break
+        // }
+        if(response.status === 'error'){
+            const nameField = response.errors.field
+            setServerErrors({[nameField]:response.errors.message });
+            setTimeout(() => {
+                setServerErrors({[nameField]:false });
+            }, 3000);
+        }else{
+            console.log('Успешно!');
+            setShowSuccessModal(true);
+            onSubmit();
         }
         // const response = await fetchData(values,action,method);
         // if(response.status === 'error'){
@@ -58,12 +96,12 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                         }}
                     >
                         {({ handleSubmit, handleChange, values, touched, errors ,serverErrors}) => (
+
                             <Form onSubmit={handleSubmit}>
                                 {formFields.map((field, index) => (
                                     <Form.Group key={index} className="mb-3">
                                         {(() => {
                                             const {id} = field
-                                            // console.log(field)
                                             switch (field.formType) {
                                                 case 'selectMenu':
                                                     return (
@@ -72,8 +110,10 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                                             <Form.Select
                                                                 id={id}
                                                                 name={id}
-                                                                value={field.selectMenu[0]}
-                                                                onChange={handleChange}
+                                                                value={values[id]}
+                                                                onChange={(e)=>{
+                                                                    handleChange(e);
+                                                                }}
                                                                 isInvalid={touched && (!!errors[field.id] || !!serverErrors)}
                                                             >
                                                                 {field.selectMenu.map((option, i) => (
@@ -134,7 +174,7 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                     </Form.Group>
                                 ))}
                                 <Button className="w-100" type='submit'>
-                                    Добавить запись
+                                    {title}
                                 </Button>
                             </Form>
                         )}
