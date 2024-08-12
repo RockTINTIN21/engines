@@ -7,34 +7,74 @@ import { Modal, Button } from 'react-bootstrap';
 import Form from "react-bootstrap/Form";
 import {Formik} from "formik";
 import SuccessModal from "../SuccessModal/SuccessModal.jsx";
+import {fetchData, validationSchema} from "../../../../Validation.js";
 
-const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeModal}) => {
+const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeModal,initialValues,action,method, onSubmit}) => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [serverErrors, setServerErrors] = useState({});
+    const closeUniversalModal = () => setShowSuccessModal(false);
+    const submitOnServer =  async (values,action,method) => {
+        switch (action){
+            case 'addPosition':
+                const response = await fetchData(values,action,method);
+                if(response.status === 'error'){
+                    const nameField = response.errors.field
+                    setServerErrors({[nameField]:response.errors.message });
+                    setTimeout(() => {
+                        setServerErrors({[nameField]:false });
+                    }, 3000);
+                }else{
+                    console.log('Успешно!');
+                    setShowSuccessModal(true);
+                    onSubmit();
+                }
+                break
+        }
+        // const response = await fetchData(values,action,method);
+        // if(response.status === 'error'){
+        //     const nameField = response.errors.field
+        //     setServerErrors({[nameField]:response.errors.message });
+        //     setTimeout(() => {
+        //         setServerErrors({[nameField]:false });
+        //     }, 3000);
+        // }else{
+        //     console.log('Успешно!');
+        //     setShowSuccessModal(true);
+        //     onSubmit();
+        // }
+    }
+
     const renderModalContent = () => {
         switch (modalType) {
             case 'form':
                 return (
                     <Formik
-                        // initialValues={FormValues}
-                        // validationSchema={validationSchema(action)}
-                        // onSubmit={(values) => {
-                        //     submitOnServer(values, action, method);
-                        // }}
+                        initialValues={initialValues}
+                        validationSchema={validationSchema(action)}
+                        onSubmit={(values,) => {
+                            console.log('Отправлено!',values)
+                            submitOnServer(values, action, method);
+
+                        }}
                     >
-                        {({ handleSubmit, handleChange, values, touched, errors }) => (
+                        {({ handleSubmit, handleChange, values, touched, errors ,serverErrors}) => (
                             <Form onSubmit={handleSubmit}>
                                 {formFields.map((field, index) => (
                                     <Form.Group key={index} className="mb-3">
                                         {(() => {
+                                            const {id} = field
+                                            // console.log(field)
                                             switch (field.formType) {
                                                 case 'selectMenu':
                                                     return (
                                                         <>
                                                             <Form.Label>{field.label}</Form.Label>
                                                             <Form.Select
-                                                                id={field.id}
-                                                                name={field.id}
-                                                                defaultValue={field.selectMenu[0]}
+                                                                id={id}
+                                                                name={id}
+                                                                value={field.selectMenu[0]}
+                                                                onChange={handleChange}
+                                                                isInvalid={touched && (!!errors[field.id] || !!serverErrors)}
                                                             >
                                                                 {field.selectMenu.map((option, i) => (
                                                                     <option key={i} value={option}>
@@ -42,6 +82,7 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                                                     </option>
                                                                 ))}
                                                             </Form.Select>
+                                                            <Form.Control.Feedback type="invalid">{errors[field.id] || serverErrors}</Form.Control.Feedback>
                                                         </>
                                                     );
                                                 case 'date':
@@ -50,11 +91,13 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                                             <Form.Label>{field.label}</Form.Label>
                                                             <Form.Control
                                                                 type="date"
-                                                                id={field.id}
-                                                                name={field.id}
+                                                                id={id}
+                                                                name={id}
                                                                 value={field.value}
                                                                 onChange={handleChange}
+                                                                isInvalid={touched && (!!errors[field.id] || !!serverErrors)}
                                                             />
+                                                            <Form.Control.Feedback type="invalid">{errors[field.id] || serverErrors}</Form.Control.Feedback>
                                                         </>
                                                     );
                                                 case 'field':
@@ -63,10 +106,12 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                                             <Form.Label>{field.label}</Form.Label>
                                                             <Form.Control
                                                                 type="text"
-                                                                id={field.id}
-                                                                name={field.id}
+                                                                id={id}
+                                                                name={id}
                                                                 onChange={handleChange}
+                                                                isInvalid={touched && (!!errors[field.id] || !!serverErrors)}
                                                             />
+                                                            <Form.Control.Feedback type="invalid">{errors[field.id] || serverErrors}</Form.Control.Feedback>
                                                         </>
                                                     );
                                                 case 'fieldTextArea':
@@ -76,8 +121,8 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                                             <Form.Control
                                                                 as="textarea"
                                                                 rows={field.rows || 3}
-                                                                id={field.id}
-                                                                name={field.id}
+                                                                id={id}
+                                                                name={id}
                                                                 onChange={handleChange}
                                                             />
                                                         </>
@@ -88,7 +133,7 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
                                         })()}
                                     </Form.Group>
                                 ))}
-                                <Button className="w-100">
+                                <Button className="w-100" type='submit'>
                                     Добавить запись
                                 </Button>
                             </Form>
@@ -117,13 +162,13 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType,closeM
         <>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Подтверждение</Modal.Title>
+                    <Modal.Title>{title || 'Подтверждение'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {renderModalContent()}
                 </Modal.Body>
             </Modal>
-            <SuccessModal showModal={showSuccessModal} closeModal={closeModal}></SuccessModal>
+            <SuccessModal showModal={showSuccessModal} closeModal={closeUniversalModal}></SuccessModal>
         </>
 
     );

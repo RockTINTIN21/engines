@@ -1,65 +1,89 @@
 import express from 'express';
 import Engine from '../models/Engine.js';
 
-const app = express.Router();
-app.use(express.json());
+const router = express.Router();
+router.use(express.json());
 
-export function addToRepo() {
+router.post('/addEngine', async (req, res) => {
+    try {
+        const {
+            installationTitle: title,
+            installationPosition: location,
+            installationPlace: installationLocation,
+            installationIventNumber: inventoryNumber,
+            installationAccount: accountNumber,
+            installationType: type,
+            installationPower: power,
+            installationCoupling: coupling,
+            installationStatus: status,
+            installationDate: date,
+            comments = 'Нет комментариев',
+            historyOfTheInstallation = 'История установки отсутствует',
+            historyOfTheRepair = 'История ремонта отсутствует'
+        } = req.body;
 
-    const engines = [
-        {
-            title:'АИР TEST',
-            location:'Склад №2',
-            installationLocation:'Компрессорная',
-            inventoryNumber:'8726423415',
-            accountNumber:'50500404',
-            type:'А315123M2Q3',
-            power:'200',
-            coupling:'Да',
-            status:'Готов',
-            comments:'нет',
-            historyOfTheInstallation:'',
-            historyOfTheRepair:'Таблица',
-            date:'13.08.2024'
-        }
-    ];
-    const engineInstance = new Engine();
-    engines.forEach(engine => {
-        engineInstance.addEngine(engine.title,
-            engine.location,
-            engine.installationLocation,
-            engine.inventoryNumber,
-            engine.accountNumber,
-            engine.type,
-            engine.power,
-            engine.coupling,
-            engine.status,
-            engine.comments,
-            engine.historyOfTheInstallation,
-            engine.historyOfTheRepair,
-            engine.date
-            );
-    });
-}
+        const engineInstance = new Engine();
+        await engineInstance.addEngine(
+            title,
+            location,
+            installationLocation,
+            inventoryNumber,
+            accountNumber,
+            type,
+            power,
+            coupling,
+            status,
+            comments,
+            historyOfTheInstallation,
+            historyOfTheRepair,
+            date
+        );
 
-// app.get('/getStudentsByGroup', (req, res) => {
-//     try {
-//         const group = decodeURIComponent(req.query.group);
-//         const repository = Repo.filterStudentsByGroup(group);
-//         res.status(200).send({
-//             status: 'success',
-//             repository: repository
-//         });
-//     } catch (error) {
-//         console.log('GET запрос: ', error);
-//         res.status(404).send({
-//             status: 'error',
-//             errors: {
-//                 field: error.name,
-//                 message: error.message
-//             }
-//         });
-//     }
-// });
+        res.status(201).send({
+            status: 'success',
+            message: 'Двигатель успешно добавлен'
+        });
+    } catch (error) {
+        console.error('Ошибка при добавлении двигателя:', error.message);
+        res.status(404).send({
+            status: 'error',
+            errors: {
+                field: error.name,
+                message: error.message
+            }
+        });
+    }
+});
+router.post('/addPosition', async (req, res) => {
+    try {
+        const {
+            position: position,
+            installationPlace: installationPlace,
+        } = req.body;
+        // if (!installationPlace) {
+        //     installationPlace = undefined;
+        // }
+        const engineInstance = new Engine();
+        await engineInstance.addEngine(
+            position,
+            installationPlace,
+        );
 
-export default { app, addToRepo };
+        res.status(201).send({
+            status: 'success',
+            message: 'Место нахождения успешно добавлено'
+        });
+    } catch (error) {
+        console.error('Ошибка при добавлении местонахождения:', error.message);
+        res.status(404).send({
+            status: 'error',
+            errors: {
+                field: error.name,
+                message: error.message
+            }
+        });
+    }
+});
+
+
+export default router;

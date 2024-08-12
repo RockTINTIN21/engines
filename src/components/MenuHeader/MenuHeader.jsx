@@ -40,10 +40,10 @@ function MenuHeader({ title, pathToMain, titleButtonMain, pathToSearch, titleBut
                                 onMouseLeave={() => setIsSearchHovered(false)}
                             >
                                 <Link to={pathToSearch} className={`text-decoration-none ${styles.link}`}>
-                                    <img width="30px"
+                                    <img
                                         src={imgPathToSearch}
                                         alt="btn"
-                                        className={`${styles.icon} ${isSearchHovered ? styles.hover : ''}`}
+                                        className={`${styles.icon} ${isSearchHovered ? styles.hover : ''} pb-1 pe-1`}
                                     />
                                     {titleButtonSearch || 'Ошибка загрузки'}
                                 </Link>

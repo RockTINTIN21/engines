@@ -1,24 +1,49 @@
 import MenuHeader from "../../components/MenuHeader/MenuHeader.jsx";
 import MenuIcon from "../../assets/icons/MenuIcon.svg"
+import DataBaseIcon from "../../assets/icons/DataBaseIcon.svg"
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import styles from "./AggregateJournal.module.css"
 import {Formik} from "formik";
 import search from '../../assets/icons/SearchIcon.svg'
 import edit from '../../assets/icons/EditIcon.svg'
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Table} from "react-bootstrap";
 import UniversalModal from "../../components/Modals/UniversalModal/UniversalModal.jsx";
+import {fetchData} from "../../../Validation.js";
 
 const placeholder = 'Наименование'
 function AggregateJournal(){
     const [isMainHovered, setIsMainHovered] = useState(false);
     const [isEditHovered, setIsEditHovered] = useState(false);
-
+    const [initialValues, setInitialValues] = useState({})
     const [showModal, setShowModal] = useState(false);
     const [formFields, setFormFields] = useState([]);
     const [modalType,setModalType] = useState('')
     const [modalTitle, setModalTitle] = useState('')
+    const [selectMenuValuesFromDB,setSelectMenuValuesFromDB] = useState([])
+    const submitOnServer =  async (values) => {
+        const response = await fetchData(values);
+        if(response.status === 'error'){
+            const nameField = response.errors.field
+            setSelectMenuValuesFromDB();
+            console.log('Ошибка')
+            // setTimeout(() => {
+            //     setServerErrors({[nameField]:false });
+            // }, 3000);
+        }else{
+            console.log('Успешно!');
+            // setShowSuccessModal(true);
+            // onSubmit();
+        }
+    }
+    // useEffect(() => {
+    //
+    //     setSelectMenuValuesFromDB()
+    // }, []);
+    const handleDataSubmission = ()=>{
+        setShowModal(false);
+    }
 
     const closeModal = () => {
         setShowModal(false);
@@ -37,16 +62,29 @@ function AggregateJournal(){
     const [subPlace, setSubPlace] = useState(formSelectPlace[0].subPlace)
     const saveFormType = () => {
         setFormFields([
+            {id:'installationTitle',label:'Название двигателя:',formType:'field'},
             {id:'installationPosition',label:'Место нахождения:',formType:'selectMenu',selectMenu:formSelectPosition},
             {id:'installationPlace',label:'Место установки:',formType:'selectMenu',selectMenu:subPlace},
             {id:'installationIventNumber',label:'Ивент. Номер:',formType:'field'},
             {id:'installationAccount',label:'Учет. Номер:',formType:'field'},
-            {id:'installationAccount',label:'Тип:',formType:'field'},
+            {id:'installationType',label:'Тип:',formType:'field'},
             {id:'installationPower',label:'Мощность:',formType:'field'},
             {id:'installationCoupling',label:'Муфта:',formType:'selectMenu',selectMenu:formSelectCoupling},
             {id:'installationStatus',label:'Готов / Не готов:',formType:'selectMenu',selectMenu:formSelectStatus},
             {id:'installationDate',label:'Дата:',formType:'date'}
         ])
+        setInitialValues({
+            installationTitle: '',
+            installationPosition: formSelectPosition[0],
+            installationPlace: subPlace[0],
+            installationIventNumber: '',
+            installationAccount: '',
+            installationType: '',
+            installationPower: '',
+            installationCoupling: formSelectCoupling[0],
+            installationStatus: formSelectStatus[0],
+            installationDate: ''
+        })
         setModalTitle('Добавить запись')
         setModalType('form')
         setShowModal(true);
@@ -75,7 +113,7 @@ function AggregateJournal(){
     ));
     return(
         <>
-            <MenuHeader title="Агрегатный журнал" pathToMain={"/"} titleButtonMain={"К меню"} imgPathToMain={MenuIcon}/>
+            <MenuHeader title="Агрегатный журнал" pathToMain={"/"} titleButtonMain="Меню" imgPathToMain={MenuIcon} imgPathToSearch={DataBaseIcon} pathToSearch={'/AggregateJournal/EditDataBase'} titleButtonSearch="Управление БД"/>
             <div className={`container styles-card p-2 bg-gray `}>
                 <div className="m-2 ">
                     <Formik
@@ -161,7 +199,7 @@ function AggregateJournal(){
                     </tbody>
                 </Table>
             </div>
-            <UniversalModal show={showModal} handleClose={closeModal} modalType={modalType} formFields={formFields} title={modalTitle}/>
+            <UniversalModal show={showModal} handleClose={closeModal} modalType={modalType} formFields={formFields} title={modalTitle} initialValues={initialValues} onSubmit={handleDataSubmission} action='addEngine' method='POST'/>
         </>
     )
 }

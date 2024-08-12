@@ -7,9 +7,9 @@ import { Modal, Button } from 'react-bootstrap';
 import Form from "react-bootstrap/Form";
 import {Formik} from "formik";
 
-const SuccessModal = ({ show, handleClose,closeModal}) => {
+const SuccessModal = ({ showModal, handleClose,closeModal}) => {
     return(
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={showModal} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Успешно</Modal.Title>
             </Modal.Header>
@@ -17,9 +17,9 @@ const SuccessModal = ({ show, handleClose,closeModal}) => {
                 <div className="text-center">
                     <h4>Успешно!</h4>
                     <img src={successIcon} alt="successIcon"/>
-                    <Button onClick={closeModal}>
+                    <div className='w-100 pt-3'><Button onClick={closeModal} className='w-100'>
                         Понятно
-                    </Button>
+                    </Button></div>
                 </div>
             </Modal.Body>
         </Modal>

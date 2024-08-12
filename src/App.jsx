@@ -4,6 +4,7 @@ import Menu from "./pages/Menu.jsx";
 import Header from "./layouts/Header/Header.jsx";
 import AggregateJournal from "./pages/AggregateJournal/AggregateJournal.jsx";
 import EnginePassport from "./pages/EnginePassport/EnginePassport.jsx";
+import EditDataBase from "./pages/EditDataBase/EditDataBase.jsx";
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
               <Route path="/" element={<Menu/>}/>
               <Route path="/AggregateJournal" element={<AggregateJournal/>}/>
               <Route path="/AggregateJournal/EnginePassport" element={<EnginePassport/>}/>
+              <Route path="/AggregateJournal/EditDataBase" element={<EditDataBase/>}/>
           </Routes>
       </div>
     </Router>
