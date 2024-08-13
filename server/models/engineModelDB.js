@@ -1,13 +1,22 @@
 import mongoose from 'mongoose';
-// Определение схемы для местоположений (position и installationPlace)
-const locationSchema = new mongoose.Schema({
-    position: { type: String, required: true },  // position обязательно
-    installationPlace: { type: String }  // installationPlace может быть необязательным
+
+const installationHistorySchema = new mongoose.Schema({
+    installationPlace: String,
+    status: String,
+    date: String
 });
+
+const repairHistorySchema = new mongoose.Schema({
+    installationPlace: String,
+    description: String,
+    date: String
+});
+
 const engineSchema = new mongoose.Schema({
+    _id: { type: String, required: true },  // Поле для хранения UUID
     title: { type: String, required: true, unique: true },
-    location: [locationSchema],
-    installationLocation: String,
+    location: String,
+    installationPlace: String,
     inventoryNumber: String,
     accountNumber: String,
     type: String,
@@ -15,8 +24,8 @@ const engineSchema = new mongoose.Schema({
     coupling: String,
     status: String,
     comments: String,
-    historyOfTheInstallation: String,
-    historyOfTheRepair: String,
+    historyOfTheInstallation: [installationHistorySchema],  // Изменяем поле на массив объектов
+    historyOfTheRepair: [repairHistorySchema],  // Изменяем поле на массив объектов
     date: String
 });
 

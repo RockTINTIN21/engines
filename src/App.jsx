@@ -17,6 +17,7 @@ function App() {
               <Route path="/AggregateJournal" element={<AggregateJournal/>}/>
               <Route path="/AggregateJournal/EnginePassport" element={<EnginePassport/>}/>
               <Route path="/AggregateJournal/EditDataBase" element={<EditDataBase/>}/>
+              <Route path="/AggregateJournal/EnginePassport/:engineId" element={<EnginePassport/>}/>
           </Routes>
       </div>
     </Router>

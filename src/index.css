@@ -53,4 +53,18 @@ input:focus, textarea:focus,.form-select:focus,select:focus {
   color: black;
   transition: 0.3s;
 }
-
+.engineList{
+  --bs-table-bg: rgba(155, 10, 10, 0); /* Задайте нужный цвет */
+}
+.engineListThead{
+  background-color: #fff;
+}
+.bgReady{
+  background-color: #A6D3B4;
+}
+.bgLowRepair{
+  background-color: #FFD966;
+}
+.bgHeavyRepair{
+  background-color: #E68B93!important;
+}
