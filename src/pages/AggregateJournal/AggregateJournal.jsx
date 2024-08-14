@@ -22,8 +22,7 @@ function AggregateJournal() {
     const [formFields, setFormFields] = useState([]);
     const [modalType, setModalType] = useState('');
     const [modalTitle, setModalTitle] = useState('');
-    const [positionsData, setPositionsData] = useState([]); // Данные позиций с сервера
-    const [selectedInstallationPlaces, setSelectedInstallationPlaces] = useState([]);
+    const [positionsData, setPositionsData] = useState([]);
 
     const formSelectCoupling = ['Готов', 'Не готов'];
     const formSelectStatus = ['В кап. рем', 'Готов', 'В ср. рем'];
@@ -42,7 +41,6 @@ function AggregateJournal() {
             console.log('Ошибка:', response.error);
         } else {
             setPositionsData(response.data);
-            console.log('Позиции успешно загружены!');
             if (response.data.length > 0) {
                 handlePositionChange(response.data[0].position); // Обновляем места установки для первой позиции по умолчанию
             }
@@ -52,10 +50,9 @@ function AggregateJournal() {
     const handlePositionChange = (selectedPosition) => {
         const selectedData = positionsData.find(position => position.position === selectedPosition);
         if (selectedData) {
-            setSelectedInstallationPlaces(selectedData.installationPlaces || []);
+            console.log('Выбрано!')
             updateFormFields(selectedPosition, selectedData.installationPlaces);
         } else {
-            setSelectedInstallationPlaces([]);
             updateFormFields(selectedPosition, []);
         }
     };
@@ -63,7 +60,7 @@ function AggregateJournal() {
     const updateFormFields = (position, installationPlaces) => {
         setInitialValues({
             title: '',
-            position: position || '',  // Убедитесь, что position установлено или остается пустым
+            position: position || '',
             installationPlace: installationPlaces[0] || '',
             iventNumber: '',
             account: '',
@@ -134,7 +131,6 @@ function AggregateJournal() {
             // setServerErrors(finalNameField);
             setStatus('Ничего не найдено')
         } else {
-            console.log(response)
             setStatus('')
             setEngineList(response.data)
         }
@@ -148,7 +144,6 @@ function AggregateJournal() {
                         initialValues={formValue}
                         enableReinitialize={true}
                         onSubmit={(values) => {
-                            console.log('Отправлено!', values);
                             submitOnServer(values);
                         }}
                     >
