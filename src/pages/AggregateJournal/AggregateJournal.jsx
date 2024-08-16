@@ -10,7 +10,7 @@ import search from '../../assets/icons/SearchIcon.svg';
 import edit from '../../assets/icons/EditIcon.svg';
 import {useEffect, useRef, useState} from "react";
 import UniversalModal from "../../components/Modals/UniversalModal/UniversalModal.jsx";
-import {getApiDataSearch, getFetchData} from "../../../Validation.js";
+import {getAllEngines, getApiDataSearch, getFetchData} from "../../../Validation.js";
 import {Table} from "react-bootstrap";
 import {Link} from "react-router-dom";
 
@@ -68,7 +68,10 @@ function AggregateJournal() {
             power: '',
             coupling: formSelectCoupling[0],
             status: formSelectStatus[0],
+            linkOnAddressStorage:'',
+            docFromPlace:'',
             date: ''
+
         });
         setFormFields([
             { id: 'title', label: 'Название двигателя:', formType: 'field' },
@@ -81,6 +84,8 @@ function AggregateJournal() {
             { id: 'power', label: 'Мощность:', formType: 'field' },
             { id: 'coupling', label: 'Муфта:', formType: 'selectMenu', selectMenu: formSelectCoupling },
             { id: 'status', label: 'Готов / Не готов:', formType: 'selectMenu', selectMenu: formSelectStatus },
+            { id: 'linkOnAddressStorage', label: 'Ссылка на адрес хранения:', formType: 'field' },
+            { id: 'docFromPlace', label: 'Ссылка на документацию от производителя:', formType: 'field' },
             { id: 'date', label: 'Дата:', formType: 'date' }
         ]);
     };
@@ -109,6 +114,7 @@ function AggregateJournal() {
         { title: 'Место установки', validationType: 'getEngineByInstallationPlace', value: { installationPlace: "" } },
         { title: 'Инвентарный номер', validationType: 'getEngineByInventoryNumber', value: { inventoryNumber: "" } }
     ];
+
     const [formTitle, setFormTitle] = useState(formSelectList[0].title);
     const [formValue, setFormValue] = useState(formSelectList[0].value);
     const [actionSearch, setActionSearch] = useState(formSelectList[0].validationType);
@@ -116,8 +122,8 @@ function AggregateJournal() {
         const key = formSelectList.findIndex(elem => elem.title === e.target.value);
         setFormTitle(formSelectList[key].title);
         setActionSearch(formSelectList[key].validationType);
-        setFormValue(formSelectList[key].value);
-        resetForm({ values: formSelectList[key].value });
+        setFormValue(formSelectList[key].value || {}); // Убедитесь, что value всегда определено
+        resetForm({ values: formSelectList[key].value || {} });
     };
 
     const formSelectedList = formSelectList.map((elem, index) => (
@@ -136,7 +142,18 @@ function AggregateJournal() {
             setEngineList(response.data)
         }
     }
-
+    const showAllEngines = async () =>{
+        const response = await getAllEngines();
+        if (response.status === 'error') {
+            setStatus('Ничего не найдено')
+        } else {
+            setStatus('')
+            setEngineList(response.data)
+        }
+    }
+    useEffect(() => {
+        console.log('Двигатели:',engineList)
+    }, [engineList]);
     return (
         <>
             <MenuHeader title="Агрегатный журнал" pathToMain={"/"} titleButtonMain="Меню" imgPathToMain={MenuIcon}
@@ -184,7 +201,12 @@ function AggregateJournal() {
                                 >
                                     {formSelectedList || 'Пусто'}
                                 </Form.Select>
-                                <Button className="ms-md-3 col-md-2 col-12  mt-2 mt-md-0"
+                                <Button className="ms-md-3 col-md-auto col-12  mt-2 mt-md-0"
+                                        onClick={() => showAllEngines()}
+                                >
+                                    Показать все
+                                </Button>
+                                <Button className="ms-md-3 col-md-auto col-12  mt-2 mt-md-0"
                                         onMouseEnter={() => setIsEditHovered(true)}
                                         onMouseLeave={() => setIsEditHovered(false)}
                                         onClick={() => saveFormType()}
@@ -205,6 +227,7 @@ function AggregateJournal() {
                         <thead className={`engineListThead`}>
                         <tr>
                             <th>#</th>
+                            <th>Название:</th>
                             <th>Место нахождения:</th>
                             <th>Место установки:</th>
                             <th>Ивент. Номер:</th>
@@ -227,6 +250,7 @@ function AggregateJournal() {
                                 const renderRow = () => (
                                     <>
                                         <td>{index + 1}</td>
+                                        <td>{engine.title}</td>
                                         <td>{engine.location}</td>
                                         <td>{engine.installationPlace}</td>
                                         <td>{engine.inventoryNumber}</td>
@@ -272,7 +296,7 @@ function AggregateJournal() {
                             })
                         ) : (
                             <tr>
-                                <td colSpan="11" className="text-center">{status}</td>
+                                <td colSpan="12" className="text-center">{status}</td>
                             </tr>
                         )}
                         </tbody>

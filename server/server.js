@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import controller from './controllers/controller.js';
+import router from "./controllers/controller.js";
 
 const app = express();
 const port = 3000;
@@ -28,7 +29,23 @@ mongoose.connect(mongoURI, {
 
 // Использование маршрутов контроллера
 app.use('/api', controller);
+const session = require('express-session');
 
+app.use(session({
+    secret: 'your_secret_key', // Задайте секретный ключ для подписи Cookie
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Для HTTPS установите в true
+}));
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === 'admin' && password === '77599557609') {
+        req.session.user = { username };  // Сохранение информации о пользователе в сессию
+        res.json({ status: 'success', message: 'Authentication successful!' });
+    } else {
+        res.status(401).json({ status: 'error', message: 'Authentication failed' });
+    }
+});
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });

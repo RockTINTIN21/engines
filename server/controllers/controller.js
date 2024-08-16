@@ -22,10 +22,12 @@ conn.once('open', () => {
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+// Пример файла server.js или другого файла маршрутов
 
 router.post('/addEngine', upload.single('file'), async (req, res) => {
     try {
         let imageFileId = null;
+        console.log(req.body)
         if (req.file) {
             // Процесс загрузки файла, если он был передан
             const filename = crypto.randomBytes(16).toString('hex') + path.extname(req.file.originalname);
@@ -86,12 +88,14 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
             power,
             coupling,
             status,
-            comments
+            comments,
+            docFromPlace,
+            linkOnAddressStorage
         } = req.body;
         // Преобразуем iventNumber в inventoryNumber
         const inventoryNumber = iventNumber;
-        // Логика обновления изображения
-        let imageFileId = null;
+        // Логика обновления изображения.id;
+        let { imageFileId } = req.body; // Получите imageFileId из тела запроса
         if (req.file) {
             const filename = crypto.randomBytes(16).toString('hex') + path.extname(req.file.originalname);
             const readableStream = new Readable();
@@ -126,7 +130,9 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
             coupling,
             status,
             comments,
-            imageFileId
+            imageFileId,
+            docFromPlace,
+            linkOnAddressStorage
         );
 
         res.status(200).json({ status: 'success', message: 'Данные двигателя успешно обновлены' });
@@ -150,11 +156,26 @@ async function createEngine(res, engineData, imageFileId) {
         engineData.historyOfTheInstallation,
         engineData.historyOfTheRepair,
         engineData.date,
-        imageFileId // Передаем imageFileId, если есть, или null
+        imageFileId,
+        engineData.docFromPlace,  // Добавление ссылок
+        engineData.linkOnAddressStorage
     );
 
     res.status(201).send({ status: 'success', message: 'Двигатель успешно добавлен' });
 }
+// Получение всех двигателей
+router.get('/getAllEngines', async (req, res) => {
+    try {
+        const engineInstance = new Engine();  // Создание экземпляра класса Engine
+        const engines = await engineInstance.getAllEngines();  // Вызов метода через экземпляр
+
+        res.status(200).send({ status: 'success', data: engines });
+    } catch (error) {
+        console.error('Ошибка при получении всех двигателей:', error.message);
+        res.status(500).send({ status: 'error', message: error.message });
+    }
+});
+
 router.get('/image/:id', async (req, res) => {
     try {
         const fileId = new mongoose.Types.ObjectId(req.params.id);
@@ -223,32 +244,41 @@ router.post('/addPosition', async (req, res) => {
 router.post('/addHistoryRepair', async (req, res) => {
     try {
         const {
-            position,installationPlace,repairDescription,date,engineId,
+            repairType,
+            repairDescription,
+            repairDate,
+            engineId
         } = req.body;
+
+        // Проверка на корректность полученных данных
+        if (!engineId || !repairType || !repairDescription || !repairDate) {
+            return res.status(400).send({
+                status: 'error',
+                message: 'Необходимо предоставить все поля: engineId, repairType, repairDescription, repairDate'
+            });
+        }
+
         const engineInstance = new Engine();
         await engineInstance.addHistoryRepair(
             engineId,
-            position,
-            installationPlace,
+            repairType,
             repairDescription,
-            date
+            repairDate
         );
 
         res.status(201).send({
             status: 'success',
-            message: 'Место нахождения успешно добавлено'
+            message: 'Запись истории ремонта успешно добавлена'
         });
     } catch (error) {
-        console.error('Ошибка при добавлении местонахождения:', error.message);
-        res.status(404).send({
+        console.error('Ошибка при добавлении истории ремонта:', error.message);
+        res.status(500).send({
             status: 'error',
-            errors: {
-                field: error.name,
-                message: error.message
-            }
+            message: error.message
         });
     }
 });
+
 router.get('/getPositions', async (req, res) => {
     try {
         const engineInstance = new Engine();

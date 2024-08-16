@@ -4,7 +4,6 @@ import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 class Engine {
     // Метод для добавления новой позиции в коллекцию `Position`
-    // Метод для добавления новой позиции в коллекцию `Position`
     async addPosition(position, installationPlace) {
         try {
             console.log('Данные из формы:', position, installationPlace);
@@ -188,94 +187,83 @@ class Engine {
     }
 
     // Остальные методы остаются неизменными
-    async addEngine(title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFileId = null) {
-        try {
-            console.log('Данные из формы:', title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFileId);
+    async addEngine(title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFileId, docFromPlace, linkOnAddressStorage) {
+        console.log('Данные из формы:', title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFileId, docFromPlace, linkOnAddressStorage);
 
-            const engineExists = await EngineModelDB.findOne({ title: title.toLowerCase() });
+        const engineExists = await EngineModelDB.findOne({ title: title.toLowerCase() });
 
-            if (!engineExists) {
-                const currentDate = moment().format('YYYY-MM-DD');
-                const engineId = uuidv4();
+        if (!engineExists) {
+            const currentDate = moment().format('YYYY-MM-DD');
+            const engineId = uuidv4();
+            const newEngine = new EngineModelDB({
+                _id: engineId,
+                title,
+                location,
+                installationPlace,
+                inventoryNumber,
+                accountNumber,
+                type,
+                power,
+                coupling,
+                status,
+                comments: comments || 'Нет комментариев',
+                historyOfTheInstallation: [
+                    { installationPlace, status: 'Установлено', date: currentDate }
+                ],
+                historyOfTheRepair,
+                date,
+                imageFileId,
+                docFromPlace: docFromPlace || '', // Учет необязательных полей
+                linkOnAddressStorage: linkOnAddressStorage || '' // Учет необязательных полей
+            });
 
-                const newEngine = new EngineModelDB({
-                    _id: engineId,
-                    title,
-                    location,
-                    installationPlace,
-                    inventoryNumber,
-                    accountNumber,
-                    type,
-                    power,
-                    coupling,
-                    status,
-                    comments: comments || 'Нет комментариев',
-                    historyOfTheInstallation: [
-                        {
-                            installationPlace: installationPlace,
-                            status: 'Установили',
-                            date: currentDate
-                        }
-                    ],
-                    historyOfTheRepair: [],
-                    date,
-                    imageFileId: imageFileId || null  // Если imageFileId пустое, оставляем null
-                });
-
-                await newEngine.save();
-                console.log('Двигатель успешно добавлен.');
-            } else {
-                throw new Error("Двигатель с таким названием уже существует");
-            }
-        } catch (error) {
-            console.error('Ошибка при добавлении двигателя:', error.message);
-            throw error;
+            await newEngine.save();
+            console.log('Двигатель успешно добавлен.');
+        } else {
+            throw new Error("Двигатель с таким названием уже существует");
         }
     }
-    async updateEngine(engineId, title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, imageFileId) {
+    // Метод для получения всех двигателей
+    async getAllEngines() {
         try {
-            const engine = await EngineModelDB.findOne({ _id: engineId });
-
-            if (!engine) {
-                throw new Error("Двигатель с таким ID не найден");
-            }
-
-            // Проверяем, изменилось ли место установки
-            const currentDate = moment().format('YYYY-MM-DD');
-            if (engine.installationPlace !== installationPlace) {
-                const lastInstallation = engine.historyOfTheInstallation[engine.historyOfTheInstallation.length - 1];
-                if (lastInstallation) {
-                    lastInstallation.status = 'Демонтировано';
-                    lastInstallation.date = currentDate;
-                }
-
-                engine.historyOfTheInstallation.push({
-                    installationPlace: installationPlace,
-                    status: 'Установлено',
-                    date: currentDate
-                });
-
-                engine.installationPlace = installationPlace;
-            }
-
-            // Обновляем остальные поля двигателя
-            engine.title = title;
-            engine.location = location;
-            engine.inventoryNumber = inventoryNumber;  // Обновляем инвентарный номер
-            engine.accountNumber = accountNumber;
-            engine.type = type;
-            engine.power = power;
-            engine.coupling = coupling;
-            engine.status = status;
-            engine.comments = comments;
-            engine.imageFileId = imageFileId;
-
-            await engine.save();
-            console.log('Двигатель успешно обновлен.');
+            const engines = await EngineModelDB.find({});
+            return engines;
         } catch (error) {
-            console.error('Ошибка при обновлении двигателя:', error.message);
-            throw error;
+            console.error('Ошибка при получении всех двигателей:', error);
+            throw error;  // Передача ошибки дальше
         }
+    }
+    async updateEngine(engineId, title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, imageFileId, docFromPlace, linkOnAddressStorage) {
+        const engine = await EngineModelDB.findOne({ _id: engineId });
+
+        if (!engine) {
+            throw new Error("Двигатель с таким ID не найден");
+        }
+
+        const currentDate = moment().format('YYYY-MM-DD');
+        if (engine.installationPlace !== installationPlace) {
+            engine.historyOfTheInstallation.push({
+                installationPlace,
+                status: 'Установлено',
+                date: currentDate
+            });
+        }
+
+        engine.title = title;
+        engine.location = location;
+        engine.inventoryNumber = inventoryNumber;
+        engine.accountNumber = accountNumber;
+        engine.type = type;
+        engine.power = power;
+        engine.coupling = coupling;
+        engine.status = status;
+        engine.comments = comments;
+        engine.imageFileId = imageFileId;
+        engine.docFromPlace = docFromPlace || engine.docFromPlace; // Обновление только при предоставлении нового значения
+        engine.linkOnAddressStorage = linkOnAddressStorage || engine.linkOnAddressStorage; // Обновление только при предоставлении нового значения
+
+        await engine.save();
+        console.log('Двигатель успешно обновлен.');
     }
 
     async deleteEngine(engineId) {
@@ -296,9 +284,9 @@ class Engine {
             throw error;
         }
     }
-    async addHistoryRepair(engineId, position, installationPlace, repairDescription, date) {
+    async addHistoryRepair(engineId, repairType, repairDescription, repairDate) {
         try {
-            console.log('Добавление записи истории ремонта:', engineId, position, installationPlace, repairDescription, date);
+            console.log('Добавление записи истории ремонта:', engineId, repairType, repairDescription, repairDate);
 
             // Находим двигатель по ID
             const engine = await EngineModelDB.findOne({ _id: engineId });
@@ -309,10 +297,9 @@ class Engine {
 
             // Формируем новую запись истории ремонта
             const newRepairEntry = {
-                position,               // Добавляем местоположение
-                installationPlace,      // Добавляем место установки
-                repairDescription,      // Добавляем описание ремонта
-                date: moment(date).format('YYYY-MM-DD')  // Преобразуем дату к нужному формату
+                repairType,            // Добавляем тип ремонта
+                repairDescription,     // Добавляем описание ремонта
+                repairDate: moment(repairDate).format('YYYY-MM-DD')  // Преобразуем дату к нужному формату
             };
 
             // Добавляем новую запись в массив historyOfTheRepair

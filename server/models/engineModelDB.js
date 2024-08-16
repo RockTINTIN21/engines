@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import {string} from "yup";
 
 const installationHistorySchema = new mongoose.Schema({
     installationPlace: String,
@@ -7,10 +8,9 @@ const installationHistorySchema = new mongoose.Schema({
 });
 
 const repairHistorySchema = new mongoose.Schema({
-    position: String,
-    installationPlace: String,
+    repairType: String,
     repairDescription: String,
-    date: String
+    repairDate: String
 });
 
 const engineSchema = new mongoose.Schema({
@@ -25,6 +25,8 @@ const engineSchema = new mongoose.Schema({
     coupling: String,
     status: String,
     comments: String,
+    docFromPlace: { type: String, required: false }, // Необязательное поле
+    linkOnAddressStorage: { type: String, required: false }, // Необязательное поле
     historyOfTheInstallation: [installationHistorySchema],
     historyOfTheRepair: [repairHistorySchema],
     date: String,

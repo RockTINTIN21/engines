@@ -38,10 +38,9 @@ export const validationSchema = (action) => {
             });
         case 'addHistoryRepair':
             return yup.object().shape({
-                position: yup.string().required('Обязательно'),
-                installationPlace: yup.string().required('Обязательно'),
+                repairType: yup.string().required('Обязательно'),
                 repairDescription: yup.string().required('Обязательно'),
-                date:yup.string().required('Обязательно')
+                repairDate:yup.string().required('Обязательно')
             });
         default:
             return yup.object().shape({});
@@ -89,6 +88,18 @@ export const getApiDataSearch = async (values, action) => {
                         })
                 })
     }
+}
+export const getAllEngines = async () => {
+    const requestOptions = {
+        method: 'GET'
+    };
+    return await fetch(`http://localhost:3000/api/getAllEngines`, requestOptions)
+        .then((response) => {
+            return response.json()
+                .then((data) => {
+                    return (data);
+                })
+        })
 }
 export const fetchData = async (values, action, method) => {
     let requestOptions;

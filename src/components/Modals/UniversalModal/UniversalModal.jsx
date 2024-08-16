@@ -52,6 +52,7 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
     };
 
     const submitOnServer = async (values, action, method) => {
+        console.log('Данные пришли!')
         const response = await fetchData(values, action, method);
         if (!response || response.status === 'error') {
             const nameField = response?.errors?.field || 'unknown';

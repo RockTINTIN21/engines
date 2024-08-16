@@ -25,12 +25,16 @@ function EnginePassport() {
     const [modalType, setModalType] = useState('');
     const [modalTitle, setModalTitle] = useState('');
     const [positionsData, setPositionsData] = useState([]);
-    const [positionsDataForRepairHistory, setPositionsDataForRepairHistory] = useState([]);
-    const [initialValuesForRepair, setInitialValuesForRepair] = useState([])
+    const [formFieldForRepairModal,setFormFieldsForRepairModal] = useState([])
     const [action, setAction] = useState(null)
     const [imageFileId, setImageFileId] = useState(null); // Добавляем новое состояние для imageFileId
     const [propsFormDeleteModal,setPropsFormDeleteModal] = useState(null)
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const repairHistorySelectMenu = ['Средний рем.', 'Капитальный рем.', 'Текущий']
+    const [initialValuesForRepair, setInitialValuesForRepair] = useState({})
+
+
+
     const closeUniversalModal = () => setShowSuccessModal(false);
     const handleDataSubmission = () => {
         setShowModal(false);
@@ -53,11 +57,8 @@ function EnginePassport() {
             }));
             setFormSelectLocation(formattedData);
             setPositionsData(response.data);
-            setPositionsDataForRepairHistory(response.data);
             console.log('showModal:',showModal)
-            if (response.data.length > 0) {
-                handlePositionChangeForRepairHistory(response.data[0].position); // Обновляем места установки для первой позиции по умолчанию
-            }
+
         }
     };
 
@@ -76,12 +77,13 @@ function EnginePassport() {
         location: '',
         installationPlace: '',
         iventNumber: '',
+        type:'',
         accountNumber: '',
         power: '',
         coupling: '',
         status: '',
-        historyOfTheInstallation: [],
-        historyOfTheRepair: []
+        historyOfTheInstallation: [''],
+        historyOfTheRepair: [''],
     });
 
     const [formValues, setFormValues] = useState(initialValues);
@@ -104,17 +106,20 @@ function EnginePassport() {
 
     const [disabledButton, setDisabledButton] = useState(true);
     const formSelectedLocation = formSelectLocation.map(elem => elem.mainPlace);
-    const handlePositionChangeForRepairHistory = (selectedPosition) => {
-        const selectedDataForRepair = positionsDataForRepairHistory.find(position => position.position === selectedPosition);
-        if (selectedDataForRepair ) {
-            updateFormFields(selectedPosition, selectedDataForRepair.installationPlaces);
-        } else {
-            updateFormFields(selectedPosition, []);
-        }
-    };
     const saveFormType = (formType,values) =>{
         if(formType === 'historyRepair'){
-            handlePositionChangeForRepairHistory()
+            setInitialValuesForRepair({
+                engineId: engineId,
+                repairType: repairHistorySelectMenu[0],
+                repairDescription: '',
+                repairDate: ''
+            })
+            setFormFieldsForRepairModal([
+                { id: 'repairType', label: 'Тип ремонта:', formType: 'selectMenu', selectMenu: repairHistorySelectMenu },
+                { id: 'repairDescription', label: 'Описание ремонта:', formType: 'fieldTextArea' },
+                { id: 'repairDate', label: 'Дата установки:', formType: 'date' }
+            ]);
+            setModalTitle('Добавить в историю ремонтов');
             setModalType('form');
             setAction('addHistoryRepair');
             setShowModal(true)
@@ -125,35 +130,24 @@ function EnginePassport() {
             values.id = engineId
             setPropsFormDeleteModal({values:values,action:'deleteEngine',method:'DELETE'})
             setShowModal(true)
-            // submitOnServerEnginesData(values,'editEngine','PATCH');
-        }else if(formType === 'successMenu'){
+        }else if(formType === 'successMenu') {
             setShowSuccessModal(true)
         }
+        // }else if(formType === 'updateLinkOnAddressStorage'){
+        //     const = {
+        //
+        //     }
+        //     setFormFieldsForRepairModal([
+        //         { id: 'repairType', label: 'Тип ремонта:', formType: 'selectMenu', selectMenu: repairHistorySelectMenu },
+        //         { id: 'repairDescription', label: 'Описание ремонта:', formType: 'fieldTextArea' },
+        //         { id: 'repairDate', label: 'Дата установки:', formType: 'date' }
+        //     ]);
+        // }
 
 
     }
-    // switch (formType){
-    //     case 'repairHistory':
-    //
-    // }
-    const updateFormFields = (position, installationPlacesForRepairHistory) => {
-        setInitialValuesForRepair({
-            engineId: engineId,
-            position: position || '',
-            installationPlace: installationPlacesForRepairHistory[0],
-            repairDescription: '',
-            date: ''
-        });
-        setFormFields([
-            { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsDataForRepairHistory.map(position => position.position), isPosition: true },
-            { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: installationPlacesForRepairHistory },
-            { id: 'repairDescription', label: 'Описание ремонта:', formType: 'fieldTextArea' },
-            { id: 'date', label: 'Дата установки:', formType: 'date' }
-        ]);
-        setModalTitle('Добавить в историю ремонтов');
-        setModalType('form');
 
-    };
+
 
     // Функция для обработки изменений местоположения и обновления списка мест установки
     const handlePositionChange = (selectedPosition) => {
@@ -161,10 +155,8 @@ function EnginePassport() {
         if (selectedData) {
             console.log(selectedData.installationPlaces || [])
             setSubPlace(selectedData.installationPlaces || []);
-            updateFormFields(selectedPosition, selectedData.installationPlaces);
         } else {
             setSubPlace([]);
-            updateFormFields(selectedPosition, []);
         }
     };
 
@@ -225,13 +217,17 @@ function EnginePassport() {
                 location: enginePassportFormDB.location || '',
                 installationPlace: enginePassportFormDB.installationPlace || '',
                 iventNumber: enginePassportFormDB.inventoryNumber || '',
+                type: enginePassportFormDB.type || '',
                 accountNumber: enginePassportFormDB.accountNumber || '',
                 power: enginePassportFormDB.power || '',
                 coupling: enginePassportFormDB.coupling || '',
                 status: enginePassportFormDB.status || '',
                 comments: enginePassportFormDB.comments || '',
+                linkOnAddressStorage: enginePassportFormDB.linkOnAddressStorage || '',
+                docFromPlace: enginePassportFormDB.docFromPlace || '',
                 historyOfTheInstallation: enginePassportFormDB.historyOfTheInstallation || [''],
                 historyOfTheRepair: enginePassportFormDB.historyOfTheRepair || [''],
+                imageFileId: enginePassportFormDB.imageFileId || defaultImagePassport
             });
             setDisabledButton(false);
         }
@@ -276,6 +272,8 @@ function EnginePassport() {
             if (response.status === 'error') {
                 console.error('Ошибка:', response.message);
             } else {
+                getFromServer()
+                submitOnServer(engineId)
                 saveFormType('successMenu')
                 console.log('Cool!')
             }
@@ -283,7 +281,9 @@ function EnginePassport() {
             console.error('Ошибка при отправке запроса:', error);
         }
     }
-
+    useEffect(() => {
+        console.log('test',enginePassportFormDB)
+    }, [enginePassportFormDB]);
     if (!enginePassportFormDB) {
         return <div className='text-center'><h1>Загрузка...</h1></div>; // Показываем индикатор загрузки, пока данные не загружены
     }
@@ -376,6 +376,16 @@ function EnginePassport() {
                                         errors={errors}
                                     />
                                     <FormControl
+                                        value={values.type}
+                                        formikValue={formValues.type}
+                                        label='Тип:'
+                                        name='type'
+                                        onChange={handleChangeValue}
+                                        handleChange={handleChange}
+                                        touched={touched}
+                                        errors={errors}
+                                        serverErrors={'test'}/>
+                                    <FormControl
                                         value={values.iventNumber}
                                         formikValue={formValues.iventNumber}
                                         label='Ивент. номер:'
@@ -434,11 +444,41 @@ function EnginePassport() {
                                     />
                                 </div>
                                 <div className="col-md col-12">
-                                    <Link><Button className="w-100 mb-3">Ссылка на адрес хранения</Button></Link>
-                                    <Link><Button className="w-100 mb-3">Док. От произ. мест.</Button></Link>
+                                    <Form.Group className="p-3 mb-3 flex-wrap bg-gray styles-card">
+                                        <Form.Label className="mb-0">Обновить ссылку на адрес хранения:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name='linkOnAddressStorage'
+                                            id={'linkOnAddressStorage'}
+                                            value={formValues.linkOnAddressStorage || values.linkOnAddressStorage || ''}
+                                            onChange={(e) => { handleChange(e); }}
+                                            className="w-100 pt-0 pb-0 ps-3"
+                                            isInvalid={touched.linkOnAddressStorage && !!errors.linkOnAddressStorage}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.linkOnAddressStorage || ''}
+                                        </Form.Control.Feedback>
+                                        <a href={formValues.linkOnAddressStorage}><Button className="w-100 mt-3 mb-1">Ссылка на адрес хранения</Button></a>
+                                    </Form.Group>
+                                    <Form.Group className="p-3 flex-wrap bg-gray styles-card mb-3">
+                                        <Form.Label className="mb-0">Обновить ссылку на документацию от производителя:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name='docFromPlace'
+                                            id='docFromPlace'
+                                            value={formValues.docFromPlace || values.docFromPlace || ''}
+                                            onChange={(e) => { handleChange(e); }}
+                                            className="w-100 pt-0 pb-0 ps-3"
+                                            isInvalid={touched.docFromPlace && !!errors.docFromPlace}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.docFromPlace || ''}
+                                        </Form.Control.Feedback>
+                                        <a href={formValues.docFromPlace}><Button className="w-100 mt-3 mb-1">Документация от производителя</Button></a>
+                                    </Form.Group>
                                 </div>
                                 <Form.Group className="col-12 col-md-4 mt-4 p-3 me-4 flex-wrap bg-gray styles-card">
-                                    <Form.Label className="mb-0">Комментарии от обслуживающего персонала, советы при обслуживании, особенности в обслуживании:</Form.Label>
+                                    <Form.Label className="mb-0">Комментарии от обслуживающего персонала:</Form.Label>
                                     <Form.Control
                                         as="textarea"
                                         value={formValues.comments || values.comments || ''}
@@ -495,9 +535,9 @@ function EnginePassport() {
                                         {formValues.historyOfTheRepair.length > 0 ? (
                                             formValues.historyOfTheRepair.map((elem, index) => (
                                                 <tr key={index}>
-                                                    <td>{elem.installationPlace}</td>
+                                                    <td>{elem.repairType}</td>
                                                     <td>{elem.repairDescription}</td>
-                                                    <td>{elem.date}</td>
+                                                    <td>{elem.repairDate}</td>
                                                 </tr>
                                             ))
                                         ) : (
@@ -515,14 +555,12 @@ function EnginePassport() {
                         show={showModal}
                         handleClose={closeModal}
                         modalType={modalType}
-                        formFields={formFields}
+                        formFields={formFieldForRepairModal}
                         title={modalTitle}
                         initialValues={initialValuesForRepair}
                         onSubmit={handleDataSubmission}
                         action={action}
                         method='POST'
-                        onPositionChange={handlePositionChangeForRepairHistory}
-                        positionsData={positionsData}
                         propsFormDeleteModal = {propsFormDeleteModal}
                     />
                     <SuccessModal showModal={showSuccessModal} closeModal={closeUniversalModal}></SuccessModal>
