@@ -8,7 +8,7 @@ import styles from "./AggregateJournal.module.css";
 import { Formik } from "formik";
 import search from '../../assets/icons/SearchIcon.svg';
 import edit from '../../assets/icons/EditIcon.svg';
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import UniversalModal from "../../components/Modals/UniversalModal/UniversalModal.jsx";
 import {getApiDataSearch, getFetchData} from "../../../Validation.js";
 import {Table} from "react-bootstrap";
@@ -74,6 +74,7 @@ function AggregateJournal() {
             { id: 'title', label: 'Название двигателя:', formType: 'field' },
             { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
             { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: installationPlaces },
+            { formType: 'image'},
             { id: 'iventNumber', label: 'Ивент. Номер:', formType: 'field' },
             { id: 'account', label: 'Учет. Номер:', formType: 'field' },
             { id: 'type', label: 'Тип:', formType: 'field' },
@@ -135,9 +136,12 @@ function AggregateJournal() {
             setEngineList(response.data)
         }
     }
+
     return (
         <>
-            <MenuHeader title="Агрегатный журнал" pathToMain={"/"} titleButtonMain="Меню" imgPathToMain={MenuIcon} imgPathToSearch={DataBaseIcon} pathToSearch={'/AggregateJournal/EditDataBase'} titleButtonSearch="Управление БД" />
+            <MenuHeader title="Агрегатный журнал" pathToMain={"/"} titleButtonMain="Меню" imgPathToMain={MenuIcon}
+                        imgPathToSearch={DataBaseIcon} pathToSearch={'/AggregateJournal/EditDataBase'}
+                        titleButtonSearch="Управление БД"/>
             <div className={`container styles-card p-2 bg-gray `}>
                 <div className="m-2 ">
                     <Formik
@@ -147,8 +151,9 @@ function AggregateJournal() {
                             submitOnServer(values);
                         }}
                     >
-                        {({ handleSubmit, handleChange, values, touched, errors, resetForm }) => (
-                            <Form onSubmit={handleSubmit} className="m-1 col-md-12 col-auto d-flex flex-column flex-md-row">
+                        {({handleSubmit, handleChange, values, touched, errors, resetForm}) => (
+                            <Form onSubmit={handleSubmit}
+                                  className="m-1 col-md-12 col-auto d-flex flex-column flex-md-row">
                                 <div className="col-md-7 col-auto d-flex">
                                     <Form.Group controlId="formBasic" className="col-md-10 col-auto">
                                         <Form.Control type="text" className={`h-100 ${styles.formSearch}`}
@@ -158,13 +163,17 @@ function AggregateJournal() {
                                                       onChange={handleChange}
                                                       isInvalid={touched[Object.keys(formValue)[0]] && !!errors[Object.keys(formValue)[0]]}
                                         />
-                                        <Form.Control.Feedback type="invalid">{errors[Object.keys(formValue)[0]]}</Form.Control.Feedback>
+                                        <Form.Control.Feedback
+                                            type="invalid">{errors[Object.keys(formValue)[0]]}</Form.Control.Feedback>
                                     </Form.Group>
-                                    <Button type="submit" className={`h-100 col ${styles.btnSubmit} p-0 pe-md-3 pe-1 ms-0 text-center `}
+                                    <Button type="submit"
+                                            className={`h-100 col ${styles.btnSubmit} p-0 pe-md-3 pe-1 ms-0 text-center `}
                                             onMouseEnter={() => setIsMainHovered(true)}
                                             onMouseLeave={() => setIsMainHovered(false)}
                                     >
-                                        <img src={search} className={`${styles.icon} ${isMainHovered ? styles.hover : ''} p-0`} alt="Search" />
+                                        <img src={search}
+                                             className={`${styles.icon} ${isMainHovered ? styles.hover : ''} p-0`}
+                                             alt="Search"/>
                                         Найти
                                     </Button>
                                 </div>
@@ -180,8 +189,9 @@ function AggregateJournal() {
                                         onMouseLeave={() => setIsEditHovered(false)}
                                         onClick={() => saveFormType()}
                                 >
-                                    <img src={edit} className={`${styles.icon} ${isEditHovered ? styles.hover : ''} pe-1`}
-                                         alt="Search" />
+                                    <img src={edit}
+                                         className={`${styles.icon} ${isEditHovered ? styles.hover : ''} pe-1`}
+                                         alt="Search"/>
                                     Добавить
                                 </Button>
                             </Form>
@@ -190,79 +200,86 @@ function AggregateJournal() {
                 </div>
             </div>
             <div className={`container styles-card p-2 bg-gray mt-3`}>
-                <Table striped bordered hover className={`engineList`}>
-                    <thead className={`engineListThead`}>
-                    <tr>
-                        <th>#</th>
-                        <th>Место нахождения:</th>
-                        <th>Место установки:</th>
-                        <th>Ивент. Номер:</th>
-                        <th>Учет. Номер:</th>
-                        <th>Тип:</th>
-                        <th>Мощность:</th>
-                        <th>Муфта:</th>
-                        <th>Готов / Не готов:</th>
-                        <th>Комментарии:</th>
-                        <th>Дата:</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {engineList.length > 0 ? (
-                        engineList.map((engine, index) => {
-                            const handleRowClick = () => {
-                                window.location.href = `/AggregateJournal/EnginePassport/${engine._id}`;
-                            };
-
-                            const renderRow = () => (
-                                <>
-                                    <td>{index + 1}</td>
-                                    <td>{engine.location}</td>
-                                    <td>{engine.installationPlace}</td>
-                                    <td>{engine.inventoryNumber}</td>
-                                    <td>{engine.accountNumber}</td>
-                                    <td>{engine.type}</td>
-                                    <td>{engine.power} кВт</td>
-                                    <td>{engine.coupling}</td>
-                                    <td>{engine.status}</td>
-                                    <td>{engine.comments}</td>
-                                    <td>{engine.date}</td>
-                                </>
-                            );
-
-                            switch (engine.status) {
-                                case 'Готов':
-                                    return (
-                                        <tr key={index} className={`bgReady`} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
-                                            {renderRow()}
-                                        </tr>
-                                    );
-                                case 'В кап. рем':
-                                    return (
-                                        <tr key={index} className={`bgHeavyRepair`} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
-                                            {renderRow()}
-                                        </tr>
-                                    );
-                                case 'В ср. рем':
-                                    return (
-                                        <tr key={index} className={`bgLowRepair`} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
-                                            {renderRow()}
-                                        </tr>
-                                    );
-                                default:
-                                    return (
-                                        <tr key={index} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
-                                            {renderRow()}
-                                        </tr>
-                                    );
-                            }
-                        })
-                    ) : (
+                <div className={`table-responsive`}>
+                    <Table striped bordered hover className={`engineList`} style={{maxHeight: '400px'}}>
+                        <thead className={`engineListThead`}>
                         <tr>
-                            <td colSpan="11" className="text-center">{status}</td>
+                            <th>#</th>
+                            <th>Место нахождения:</th>
+                            <th>Место установки:</th>
+                            <th>Ивент. Номер:</th>
+                            <th>Учет. Номер:</th>
+                            <th>Тип:</th>
+                            <th>Мощность:</th>
+                            <th>Муфта:</th>
+                            <th>Готов / Не готов:</th>
+                            <th>Комментарии:</th>
+                            <th>Дата:</th>
                         </tr>
-                    )}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                        {engineList.length > 0 ? (
+                            engineList.map((engine, index) => {
+                                const handleRowClick = () => {
+                                    window.location.href = `/AggregateJournal/EnginePassport/${engine._id}`;
+                                };
+
+                                const renderRow = () => (
+                                    <>
+                                        <td>{index + 1}</td>
+                                        <td>{engine.location}</td>
+                                        <td>{engine.installationPlace}</td>
+                                        <td>{engine.inventoryNumber}</td>
+                                        <td>{engine.accountNumber}</td>
+                                        <td>{engine.type}</td>
+                                        <td>{engine.power} кВт</td>
+                                        <td>{engine.coupling}</td>
+                                        <td>{engine.status}</td>
+                                        <td>{engine.comments}</td>
+                                        <td>{engine.date}</td>
+                                    </>
+                                );
+
+                                switch (engine.status) {
+                                    case 'Готов':
+                                        return (
+                                            <tr key={index} className={`bgReady`} onClick={handleRowClick}
+                                                style={{cursor: 'pointer'}}>
+                                                {renderRow()}
+                                            </tr>
+                                        );
+                                    case 'В кап. рем':
+                                        return (
+                                            <tr key={index} className={`bgHeavyRepair`} onClick={handleRowClick}
+                                                style={{cursor: 'pointer'}}>
+                                                {renderRow()}
+                                            </tr>
+                                        );
+                                    case 'В ср. рем':
+                                        return (
+                                            <tr key={index} className={`bgLowRepair`} onClick={handleRowClick}
+                                                style={{cursor: 'pointer'}}>
+                                                {renderRow()}
+                                            </tr>
+                                        );
+                                    default:
+                                        return (
+                                            <tr key={index} onClick={handleRowClick} style={{cursor: 'pointer'}}>
+                                                {renderRow()}
+                                            </tr>
+                                        );
+                                }
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="11" className="text-center">{status}</td>
+                            </tr>
+                        )}
+                        </tbody>
+
+
+                    </Table>
+                </div>
             </div>
             <UniversalModal
                 show={showModal}

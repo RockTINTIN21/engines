@@ -7,13 +7,14 @@ const installationHistorySchema = new mongoose.Schema({
 });
 
 const repairHistorySchema = new mongoose.Schema({
+    position: String,
     installationPlace: String,
-    description: String,
+    repairDescription: String,
     date: String
 });
 
 const engineSchema = new mongoose.Schema({
-    _id: { type: String, required: true },  // Поле для хранения UUID
+    _id: { type: String, required: true },
     title: { type: String, required: true, unique: true },
     location: String,
     installationPlace: String,
@@ -24,9 +25,10 @@ const engineSchema = new mongoose.Schema({
     coupling: String,
     status: String,
     comments: String,
-    historyOfTheInstallation: [installationHistorySchema],  // Изменяем поле на массив объектов
-    historyOfTheRepair: [repairHistorySchema],  // Изменяем поле на массив объектов
-    date: String
+    historyOfTheInstallation: [installationHistorySchema],
+    historyOfTheRepair: [repairHistorySchema],
+    date: String,
+    imageFileId: mongoose.Schema.Types.ObjectId  // ID файла в GridFS
 });
 
 const EngineModelDB = mongoose.model('Engine', engineSchema);

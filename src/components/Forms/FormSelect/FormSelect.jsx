@@ -1,6 +1,6 @@
 import Form from 'react-bootstrap/Form';
 
-function FormSelect({ label, name, options, value, onChange }){
+function FormSelect({ label, name, options, value, onChange,handleChange,formikValue,serverErrors, touched, errors  }){
     // Определяем класс для всего <select> на основе выбранного значения
     let selectClass = '';
     if (value === 'В кап. рем') {
@@ -16,9 +16,10 @@ function FormSelect({ label, name, options, value, onChange }){
             <Form.Label className="w-50 mb-0">{label}</Form.Label>
             <Form.Select
                 name={name}
-                value={value}
-                onChange={onChange}
+                value={formikValue || value || ''}
+                onChange={(e)=> {onChange(e); handleChange(e)}}
                 className={`w-100 pt-0 pb-0 ps-3 ${selectClass}`}
+                isInvalid={touched[name] && (!!errors[name] || !!serverErrors[name])}
             >
                 {options.map((option, index) => {
                     // Определяем класс для каждого <option>
@@ -38,6 +39,9 @@ function FormSelect({ label, name, options, value, onChange }){
                     );
                 })}
             </Form.Select>
+            <Form.Control.Feedback type="invalid">
+                {errors[name] || serverErrors[name]}
+            </Form.Control.Feedback>
         </Form.Group>
     );
 }

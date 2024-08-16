@@ -18,10 +18,12 @@ app.use(cors());
 // Подключение к MongoDB
 const mongoURI = 'mongodb+srv://admin:77599557609@enginedb.ywnql.mongodb.net/?retryWrites=true&w=majority&appName=engineDB';
 mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 }).then(() => {
-    console.log('Успешное подключение к MongoDB');
+    console.log('Успешное подключение к MongoDB Atlas');
 }).catch((error) => {
-    console.error('Ошибка подключения к MongoDB:', error);
+    console.error('Ошибка подключения к MongoDB Atlas:', error);
 });
 
 // Использование маршрутов контроллера

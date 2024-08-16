@@ -4,12 +4,39 @@ import Form from "react-bootstrap/Form";
 import { Formik } from "formik";
 import SuccessModal from "../SuccessModal/SuccessModal.jsx";
 import { fetchData, validationSchema } from "../../../../Validation.js";
-
-const UniversalModal = ({ show, title, handleClose, formFields, modalType, closeModal, initialValues, action, method, onSubmit, positionsData, onPositionChange }) => {
+import FileUpload from "../../Forms/FileUpload/FileUpload.jsx";
+import { useNavigate } from 'react-router-dom';
+const UniversalModal = ({ show, title, handleClose, formFields, modalType, closeModal, initialValues, action, method, onSubmit, positionsData, onPositionChange,propsFormDeleteModal }) => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [serverErrors, setServerErrors] = useState({});
     const [installationPlaces, setInstallationPlaces] = useState([]); // Хранит места установки для выбранного местонахождения
+    const navigate = useNavigate();
+    const delEngine =  async () =>{
+        try {
 
+            const values = propsFormDeleteModal.values
+            const action = propsFormDeleteModal.action
+            const method = propsFormDeleteModal.method
+            console.log('КНОПКА:',propsFormDeleteModal)
+            console.log('values:',propsFormDeleteModal.values)
+            console.log(
+                'Обновленные значения:',values
+            )
+            console.log('response:',values, action,method)
+            const response = await fetchData(values, action,method);
+            if (response.status === 'error') {
+                console.error('Ошибка:', response.message);
+            } else {
+                setShowSuccessModal(true)
+                setTimeout(() => {
+                    navigate('/');
+                }, 2000);
+                console.log('Cool!')
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса:', error);
+        }
+    }
     const closeUniversalModal = () => setShowSuccessModal(false);
 
     const changePosition = (selectedPosition) => {
@@ -112,6 +139,12 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
                                                             <Form.Control.Feedback type="invalid">{errors[id] || serverErrors[id]}</Form.Control.Feedback>
                                                         </>
                                                     );
+                                                case 'image':
+                                                    return (
+                                                        <>
+                                                            <FileUpload name="file" label="Обновить фото"/>
+                                                        </>
+                                                    )
                                                 case 'fieldTextArea':
                                                     return (
                                                         <>
@@ -121,8 +154,11 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
                                                                 rows={field.rows || 3}
                                                                 id={id}
                                                                 name={id}
+                                                                value={values[id]}
                                                                 onChange={handleChange}
+                                                                isInvalid={touched[id] && (!!errors[id] || !!serverErrors[id])}
                                                             />
+                                                            <Form.Control.Feedback type="invalid">{errors[id] || serverErrors[id]}</Form.Control.Feedback>
                                                         </>
                                                     );
                                                 default:
@@ -145,7 +181,7 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
                             Вы уверены что хотите удалить эту запись?
                         </p>
                         <Modal.Footer>
-                            <Button variant="danger">Удалить</Button>
+                            <Button variant="danger" onClick={delEngine}>Удалить</Button>
                             <Button variant="primary" onClick={handleClose}>Закрыть</Button>
                         </Modal.Footer>
                     </div>
@@ -154,7 +190,6 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
                 return null;
         }
     };
-
     return (
         <>
             <Modal show={show} onHide={handleClose}>

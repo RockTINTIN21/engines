@@ -36,7 +36,13 @@ export const validationSchema = (action) => {
                 position: yup.string().required('Обязательно'),
                 installationPlace: yup.string()  // Поле необязательное, без required
             });
-
+        case 'addHistoryRepair':
+            return yup.object().shape({
+                position: yup.string().required('Обязательно'),
+                installationPlace: yup.string().required('Обязательно'),
+                repairDescription: yup.string().required('Обязательно'),
+                date:yup.string().required('Обязательно')
+            });
         default:
             return yup.object().shape({});
     }
@@ -85,11 +91,26 @@ export const getApiDataSearch = async (values, action) => {
     }
 }
 export const fetchData = async (values, action, method) => {
-    const requestOptions = {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values)
-    };
+    let requestOptions;
+
+    // Условно формируем тело запроса в зависимости от действия
+    if (action === 'addEngine' || action === 'updateEngine') {
+        const formData = new FormData();
+        for (const key in values) {
+            formData.append(key, values[key]);
+        }
+        requestOptions = {
+            method: method,
+            body: formData
+        };
+    } else {
+        requestOptions = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values)
+        };
+    }
+
 
     switch (action) {
         case 'addEngine':
@@ -107,11 +128,46 @@ export const fetchData = async (values, action, method) => {
                 return data;
             } catch (error) {
                 console.error('Ошибка при выполнении fetch:', error);
-                throw error; // или обработайте ошибку по-другому
+                throw error;
+            }
+        case 'updateEngine':
+            try {
+                console.log('values.id:',values.id)
+                const response = await fetch(`http://localhost:3000/api/updateEngine/${values.id}`, requestOptions);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ответ от сервера:', data);
+
+                return data;
+            } catch (error) {
+                console.error('Ошибка при выполнении fetch:', error);
+                throw error;
+            }
+        case 'deleteEngine':
+            try {
+                console.log('values.id:',values.id)
+                const response = await fetch(`http://localhost:3000/api/deleteEngine/${values.id}`, requestOptions);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ответ от сервера:', data);
+
+                return data;
+            } catch (error) {
+                console.error('Ошибка при выполнении fetch:', error);
+                throw error;
             }
         case 'addPosition':
             console.log('В фетч:', values);
             try {
+                console.log(requestOptions)
                 const response = await fetch("http://localhost:3000/api/addPosition", requestOptions);
 
                 if (!response.ok) {
@@ -167,6 +223,24 @@ export const fetchData = async (values, action, method) => {
             console.log('В фетч:', values);
             try {
                 const response = await fetch("http://localhost:3000/api/delInstallationPlace", requestOptions);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Ответ от сервера:', data);
+
+                return data;
+            } catch (error) {
+
+                console.error('Ошибка при выполнении fetch:', error);
+                throw error; // или обработайте ошибку по-другому
+            }
+        case 'addHistoryRepair':
+            console.log('В фетч:', values);
+            try {
+                const response = await fetch("http://localhost:3000/api/addHistoryRepair", requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
