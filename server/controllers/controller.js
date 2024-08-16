@@ -82,7 +82,7 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
             title,
             location,
             installationPlace,
-            iventNumber,  // Получаем iventNumber
+            inventoryNumber,
             accountNumber,
             type,
             power,
@@ -92,8 +92,6 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
             docFromPlace,
             linkOnAddressStorage
         } = req.body;
-        // Преобразуем iventNumber в inventoryNumber
-        const inventoryNumber = iventNumber;
         // Логика обновления изображения.id;
         let { imageFileId } = req.body; // Получите imageFileId из тела запроса
         if (req.file) {
@@ -146,7 +144,7 @@ async function createEngine(res, engineData, imageFileId) {
         engineData.title,
         engineData.position,
         engineData.installationPlace,
-        engineData.iventNumber,
+        engineData.inventoryNumber,
         engineData.account,
         engineData.type,
         engineData.power,

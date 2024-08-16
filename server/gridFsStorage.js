@@ -3,8 +3,7 @@ import { GridFsStorage } from 'multer-gridfs-storage';
 import crypto from 'crypto';
 import path from 'path';
 
-// Подключаемся к MongoDB
-const mongoURI = 'mongodb+srv://admin:77599557609@enginedb.ywnql.mongodb.net/?retryWrites=true&w=majority&appName=engineDB';
+import { mongoURI } from './config.js'; // Импортируйте ваш конфиг
 
 // Создаем хранилище для GridFS
 const storage = new GridFsStorage({

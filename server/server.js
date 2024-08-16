@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import controller from './controllers/controller.js';
-import router from "./controllers/controller.js";
+import session from 'express-session'; // Используйте ES6 импорт для express-session
 
 const app = express();
 const port = 3000;
@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(cors());
 
 // Подключение к MongoDB
-const mongoURI = 'mongodb+srv://admin:77599557609@enginedb.ywnql.mongodb.net/?retryWrites=true&w=majority&appName=engineDB';
+import { mongoURI } from './config.js'; // Импортируйте ваш конфиг
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -27,17 +27,18 @@ mongoose.connect(mongoURI, {
     console.error('Ошибка подключения к MongoDB Atlas:', error);
 });
 
-// Использование маршрутов контроллера
 app.use('/api', controller);
-const session = require('express-session');
 
+// Настройка сессии
 app.use(session({
     secret: 'your_secret_key', // Задайте секретный ключ для подписи Cookie
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // Для HTTPS установите в true
 }));
-router.post('/login', (req, res) => {
+
+// Маршрут для логина
+app.post('/login', (req, res) => {
     const { username, password } = req.body;
     if (username === 'admin' && password === '77599557609') {
         req.session.user = { username };  // Сохранение информации о пользователе в сессию
@@ -46,6 +47,7 @@ router.post('/login', (req, res) => {
         res.status(401).json({ status: 'error', message: 'Authentication failed' });
     }
 });
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });

@@ -526,7 +526,7 @@ function EnginePassport() {
                                     <Table striped bordered hover>
                                         <thead>
                                         <tr>
-                                            <th>Место:</th>
+                                            <th>Ремонт:</th>
                                             <th>Описание:</th>
                                             <th>Дата:</th>
                                         </tr>

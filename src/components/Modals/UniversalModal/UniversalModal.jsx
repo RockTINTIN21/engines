@@ -52,18 +52,23 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
     };
 
     const submitOnServer = async (values, action, method) => {
-        console.log('Данные пришли!')
-        const response = await fetchData(values, action, method);
-        if (!response || response.status === 'error') {
-            const nameField = response?.errors?.field || 'unknown';
-            setServerErrors({ [nameField]: response?.errors?.message || 'Ошибка сервера' });
-            setTimeout(() => {
-                setServerErrors({ [nameField]: false });
-            }, 3000);
-        } else {
-            console.log('Успешно!');
-            setShowSuccessModal(true);
-            onSubmit();
+        console.log('Данные для отправки:', values); // Логирование значений формы перед отправкой
+        try {
+            const response = await fetchData(values, action, method);
+            console.log('Ответ от сервера:', response); // Логирование ответа сервера
+            if (!response || response.status === 'error') {
+                const nameField = response?.errors?.field || 'unknown';
+                setServerErrors({ [nameField]: response?.errors?.message || 'Ошибка сервера' });
+                setTimeout(() => {
+                    setServerErrors({ [nameField]: false });
+                }, 3000);
+            } else {
+                console.log('Успешно отправлено!');
+                setShowSuccessModal(true);
+                onSubmit(); // Закрываем модальное окно при успешной отправке
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке формы:', error); // Логирование ошибок отправки
         }
     };
 

@@ -1,9 +1,16 @@
 import styles from './Header.module.css';
-import {useEffect, useState} from "react";
-import exit from "../../assets/icons/exit.svg"
+import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../AuthContext.jsx'; // Импортируем useAuth
+
+import exit from "../../assets/icons/exit.svg";
+
 function Header() {
     const [clock, setClock] = useState('');
-    const login = 'Admin'
+    const { logout } = useAuth(); // Достаем функцию выхода из контекста
+    const navigate = useNavigate(); // Для перенаправления на страницу логина
+    const login = 'Admin';
+
     useEffect(() => {
         const updateClock = () => {
             const now = new Date();
@@ -20,20 +27,25 @@ function Header() {
         return () => clearInterval(timerId);
     }, []);
 
+    const handleLogout = (e) => {
+        e.preventDefault(); // Предотвращаем стандартное поведение ссылки
+        logout(); // Вызываем функцию logout из контекста
+        navigate('/login'); // Перенаправляем на страницу логина
+    };
+
     return (
         <header className='col-12 pt-1 pb-1 container-fluid bg-deep-blue'>
             <div className="container">
                 <div className="d-flex justify-content-between">
                     <div className="pe-2">{clock}</div>
                     <div className="text-end">Добро пожаловать, {login}.
-                        <a href="#" className='ps-3'>
+                        <a href="#" className='ps-3' onClick={handleLogout}>
                             Выйти
                             <img src={exit} className='ps-1' height="20px" alt="Выход"/>
                         </a>
                     </div>
                 </div>
             </div>
-
         </header>
     );
 }

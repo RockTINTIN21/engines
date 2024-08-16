@@ -62,7 +62,7 @@ function AggregateJournal() {
             title: '',
             position: position || '',
             installationPlace: installationPlaces[0] || '',
-            iventNumber: '',
+            inventoryNumber: '',
             account: '',
             type: '',
             power: '',
@@ -78,7 +78,7 @@ function AggregateJournal() {
             { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
             { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: installationPlaces },
             { formType: 'image'},
-            { id: 'iventNumber', label: 'Ивент. Номер:', formType: 'field' },
+            { id: 'inventoryNumber', label: 'Ивент. Номер:', formType: 'field' },
             { id: 'account', label: 'Учет. Номер:', formType: 'field' },
             { id: 'type', label: 'Тип:', formType: 'field' },
             { id: 'power', label: 'Мощность:', formType: 'field' },
@@ -130,18 +130,17 @@ function AggregateJournal() {
         <option key={index} value={elem.title}>{elem.title}</option>
     ));
     const [engineList, setEngineList] = useState([]);
-    const submitOnServer = async (values)=>{
+    const submitOnServer = async (values) => {
         const response = await getApiDataSearch(values, actionSearch);
         if (response.status === 'error') {
-            // const nameField = response.errors.field,
-            //     finalNameField = {[nameField]: response.errors.message }
-            // setServerErrors(finalNameField);
-            setStatus('Ничего не найдено')
+            setStatus('Ничего не найдено');
         } else {
-            setStatus('')
-            setEngineList(response.data)
+            setStatus('');
+            // Оборачиваем объект в массив, если ответ не является массивом
+            const data = Array.isArray(response.data) ? response.data : [response.data];
+            setEngineList(data);
         }
-    }
+    };
     const showAllEngines = async () =>{
         const response = await getAllEngines();
         if (response.status === 'error') {
@@ -184,7 +183,7 @@ function AggregateJournal() {
                                             type="invalid">{errors[Object.keys(formValue)[0]]}</Form.Control.Feedback>
                                     </Form.Group>
                                     <Button type="submit"
-                                            className={`h-100 col ${styles.btnSubmit} p-0 pe-md-3 pe-1 ms-0 text-center `}
+                                            className={`h-100 col ${styles.btnSubmit} pt-2 p-0 pe-md-3 pe-1 ms-0 text-center `}
                                             onMouseEnter={() => setIsMainHovered(true)}
                                             onMouseLeave={() => setIsMainHovered(false)}
                                     >

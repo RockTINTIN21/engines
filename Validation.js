@@ -22,7 +22,7 @@ export const validationSchema = (action) => {
                 title: yup.string().required('Обязательно'),
                 position: yup.string().required('Обязательно'),
                 installationPlace: yup.string().required('Обязательно'),
-                iventNumber: yup.string().required('Обязательно'),
+                inventoryNumber: yup.string().required('Обязательно'),
                 account: yup.string().required('Обязательно'),
                 type: yup.string().required('Обязательно'),
                 power: yup.string().required('Обязательно'),

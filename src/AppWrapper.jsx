@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AuthProvider } from './AuthContext.jsx';
 import LoginPage from './pages/Authorization/Authorization.jsx';
 import Menu from "./pages/Menu.jsx";
 import Header from "./layouts/Header/Header.jsx";
@@ -8,8 +9,18 @@ import EnginePassport from "./pages/EnginePassport/EnginePassport.jsx";
 import EditDataBase from "./pages/EditDataBase/EditDataBase.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 
+function AppWrapper() {
+    return (
+        <AuthProvider>
+            <Router>
+                <App />
+            </Router>
+        </AuthProvider>
+    );
+}
+
 function App() {
-    const location = useLocation();
+    const location = useLocation(); // Получаем текущий путь
 
     return (
         <>
@@ -28,4 +39,4 @@ function App() {
     );
 }
 
-export default App;
+export default AppWrapper;
