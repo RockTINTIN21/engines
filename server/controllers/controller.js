@@ -14,10 +14,12 @@ const mongoURI = 'mongodb+srv://admin:77599557609@enginedb.ywnql.mongodb.net/?re
 const conn = mongoose.createConnection(mongoURI);
 
 let gfs;
+
 conn.once('open', () => {
     gfs = new GridFSBucket(conn.db, {
         bucketName: 'uploads'
     });
+    console.log('GridFSBucket инициализирован.');
 });
 
 const storage = multer.memoryStorage();
@@ -27,7 +29,11 @@ const upload = multer({ storage });
 router.post('/addEngine', upload.single('file'), async (req, res) => {
     try {
         let imageFileId = null;
-        console.log(req.body)
+        // Проверяем, что gfs инициализирован
+        if (!gfs) {
+            return res.status(500).send({ status: 'error', message: 'GridFS не инициализирован' });
+        }
+        console.log('sTart', req.body, 'req.file:', req.file);
         if (req.file) {
             // Процесс загрузки файла, если он был передан
             const filename = crypto.randomBytes(16).toString('hex') + path.extname(req.file.originalname);
@@ -40,15 +46,46 @@ router.post('/addEngine', upload.single('file'), async (req, res) => {
                 metadata: { title: req.body.title, position: req.body.position }
             });
 
+            console.log('uploadStream создан:', uploadStream.id);
+            console.log('load1');
+            readableStream.on('data', (chunk) => {
+                console.log('Часть данных прочитана:', chunk.length);
+            });
+
+            readableStream.on('end', () => {
+                console.log('Все данные прочитаны');
+            });
+
+            readableStream.on('error', (error) => {
+                console.error('Ошибка в readableStream:', error);
+            });
+
+            console.log('Запись данных в GridFS начата');
             readableStream.pipe(uploadStream)
                 .on('error', (error) => {
                     console.error('Ошибка при загрузке файла в GridFS:', error);
                     res.status(500).send({ status: 'error', message: 'Ошибка при загрузке файла' });
                 })
                 .on('finish', async () => {
+                    console.log('Загрузка файла завершена');
                     imageFileId = uploadStream.id;
                     await createEngine(res, req.body, imageFileId);
+                })
+                .on('close', () => {
+                    console.log('Stream был закрыт.');
+                })
+                .on('drain', () => {
+                    console.log('Stream очистился (drain).');
                 });
+
+            uploadStream.on('finish', () => {
+                console.log('uploadStream завершился.');
+            });
+
+            uploadStream.on('close', () => {
+                console.log('uploadStream был закрыт.');
+            });
+            console.log('load2');
         } else {
             await createEngine(res, req.body, imageFileId);  // Переходим к созданию двигателя с null для imageFileId
         }
@@ -57,6 +94,7 @@ router.post('/addEngine', upload.single('file'), async (req, res) => {
         res.status(500).send({ status: 'error', errors: { field: error.name, message: error.message } });
     }
 });
+
 // Маршрут для удаления двигателя по его ID
 router.delete('/deleteEngine/:id', async (req, res) => {
     try {
@@ -140,6 +178,7 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
 });
 async function createEngine(res, engineData, imageFileId) {
     const engineInstance = new Engine();
+    console.log('imageFileID:',imageFileId)
     await engineInstance.addEngine(
         engineData.title,
         engineData.position,

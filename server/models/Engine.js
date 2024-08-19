@@ -195,6 +195,7 @@ class Engine {
         if (!engineExists) {
             const currentDate = moment().format('YYYY-MM-DD');
             const engineId = uuidv4();
+            console.log('В id пришел:',imageFileId)
             const newEngine = new EngineModelDB({
                 _id: engineId,
                 title,
@@ -238,6 +239,8 @@ class Engine {
 
         if (!engine) {
             throw new Error("Двигатель с таким ID не найден");
+        }else{
+            console.log('Двигатель с таким ID найден, продолжаем работу...')
         }
 
         const currentDate = moment().format('YYYY-MM-DD');
@@ -247,22 +250,32 @@ class Engine {
                 status: 'Установлено',
                 date: currentDate
             });
+        }else{
+            console.log('Продолжаем работу')
         }
 
         engine.title = title;
         engine.location = location;
         engine.inventoryNumber = inventoryNumber;
+        console.log('Продолжаем работу1')
         engine.accountNumber = accountNumber;
         engine.type = type;
         engine.power = power;
         engine.coupling = coupling;
         engine.status = status;
         engine.comments = comments;
+        console.log('Продолжаем работу2')
         engine.imageFileId = imageFileId;
         engine.docFromPlace = docFromPlace || engine.docFromPlace; // Обновление только при предоставлении нового значения
         engine.linkOnAddressStorage = linkOnAddressStorage || engine.linkOnAddressStorage; // Обновление только при предоставлении нового значения
-
-        await engine.save();
+        console.log('Продолжаем работу3')
+        try {
+            await engine.save();
+            console.log('Двигатель успешно обновлен.');
+        } catch (error) {
+            console.error('Ошибка при сохранении двигателя:', error);
+            throw error;
+        }
         console.log('Двигатель успешно обновлен.');
     }
 

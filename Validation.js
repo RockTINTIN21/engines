@@ -1,5 +1,5 @@
 import * as yup from "yup";
-
+const serverIP = 'localhost:3000'
 // Определение регулярных выражений и текстов ошибок для каждого поля
 const regx = {
     title: { regx: null, errorText: '' },
@@ -55,7 +55,7 @@ export const getApiDataSearch = async (values, action) => {
     const queryParams = new URLSearchParams(values).toString();
     switch (action){
         case 'getEngineByLocation':
-            return await fetch(`http://localhost:3000/api/getEngineByLocation?${queryParams}`,requestOptions)
+            return await fetch(`http://${serverIP}/api/getEngineByLocation?${queryParams}`,requestOptions)
                 .then((response) => {
                     return response.json()
                         .then((data) => {
@@ -63,7 +63,7 @@ export const getApiDataSearch = async (values, action) => {
                         })
                 })
         case 'getEngineByInstallationPlace':
-            return await fetch(`http://localhost:3000/api/getEngineByInstallationPlace?${queryParams}`,requestOptions)
+            return await fetch(`http://${serverIP}/api/getEngineByInstallationPlace?${queryParams}`,requestOptions)
                 .then((response) => {
                     return response.json()
                         .then((data) => {
@@ -71,7 +71,7 @@ export const getApiDataSearch = async (values, action) => {
                         })
                 })
         case 'getEngineByInventoryNumber':
-            return await fetch(`http://localhost:3000/api/getEngineByInventoryNumber?${queryParams}`,requestOptions)
+            return await fetch(`http://${serverIP}/api/getEngineByInventoryNumber?${queryParams}`,requestOptions)
                 .then((response) => {
                     return response.json()
                         .then((data) => {
@@ -80,7 +80,7 @@ export const getApiDataSearch = async (values, action) => {
                 })
         case 'getEngineByID':
             console.log(queryParams)
-            return await fetch(`http://localhost:3000/api/getEngineByID?${queryParams}`,requestOptions)
+            return await fetch(`http://${serverIP}/api/getEngineByID?${queryParams}`,requestOptions)
                 .then((response) => {
                     return response.json()
                         .then((data) => {
@@ -93,7 +93,7 @@ export const getAllEngines = async () => {
     const requestOptions = {
         method: 'GET'
     };
-    return await fetch(`http://localhost:3000/api/getAllEngines`, requestOptions)
+    return await fetch(`http://${serverIP}/api/getAllEngines`, requestOptions)
         .then((response) => {
             return response.json()
                 .then((data) => {
@@ -127,7 +127,7 @@ export const fetchData = async (values, action, method) => {
         case 'addEngine':
             console.log('В фетч:', values);
             try {
-                const response = await fetch("http://localhost:3000/api/addEngine", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/addEngine`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -144,7 +144,7 @@ export const fetchData = async (values, action, method) => {
         case 'updateEngine':
             try {
                 console.log('values.id:',values.id)
-                const response = await fetch(`http://localhost:3000/api/updateEngine/${values.id}`, requestOptions);
+                const response = await fetch(`http://${serverIP}/api/updateEngine/${values.id}`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -161,7 +161,7 @@ export const fetchData = async (values, action, method) => {
         case 'deleteEngine':
             try {
                 console.log('values.id:',values.id)
-                const response = await fetch(`http://localhost:3000/api/deleteEngine/${values.id}`, requestOptions);
+                const response = await fetch(`http://${serverIP}/api/deleteEngine/${values.id}`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -179,7 +179,7 @@ export const fetchData = async (values, action, method) => {
             console.log('В фетч:', values);
             try {
                 console.log(requestOptions)
-                const response = await fetch("http://localhost:3000/api/addPosition", requestOptions);
+                const response = await fetch("http://${serverIP}/api/addPosition", requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -197,7 +197,7 @@ export const fetchData = async (values, action, method) => {
         case 'delPosition':
             console.log('В фетч:', values);
             try {
-                const response = await fetch("http://localhost:3000/api/delPosition", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/delPosition`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -215,7 +215,7 @@ export const fetchData = async (values, action, method) => {
         case 'addInstallationPlace':
             console.log('В фетч:', values);
             try {
-                const response = await fetch("http://localhost:3000/api/addInstallationPlace", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/addInstallationPlace`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -233,7 +233,7 @@ export const fetchData = async (values, action, method) => {
         case 'delInstallationPlace':
             console.log('В фетч:', values);
             try {
-                const response = await fetch("http://localhost:3000/api/delInstallationPlace", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/delInstallationPlace`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -251,7 +251,7 @@ export const fetchData = async (values, action, method) => {
         case 'addHistoryRepair':
             console.log('В фетч:', values);
             try {
-                const response = await fetch("http://localhost:3000/api/addHistoryRepair", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/addHistoryRepair`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -276,7 +276,7 @@ export const getFetchData = async (action) => {
         case 'getPositions':
             console.log('В фетч:');
             try {
-                const response = await fetch("http://localhost:3000/api/getPositions", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/getPositions`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);

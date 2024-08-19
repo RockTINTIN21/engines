@@ -190,7 +190,7 @@ function EnginePassport() {
                 setEnginePassportFromDB(response.data);  // Обновляем состояние
                 console.log('Данные двигателя:', response.data);
                 setImageFileId(response.data.imageFileId)
-                console.log('setImageField:', imageFileId)
+                console.log('setImageFieldInStart:', imageFileId)
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса:', error);
@@ -237,8 +237,8 @@ function EnginePassport() {
 
     useEffect(() => {
         const fetchImage = async () => {
+            console.log('AAAAA,imageField:',imageFileId)
             try {
-                console.log('imageField:',imageFileId)
                 if(imageFileId){
                     const response = await fetch(`http://localhost:3000/api/image/${imageFileId}`);
                     if (response.ok) {
@@ -247,19 +247,23 @@ function EnginePassport() {
                     } else {
                         console.log('error')
                     }
+                }else{
+                    // setImageUrl(defaultImagePassport);
+                    console.log('else')
                 }
-
             } catch (error) {
                 console.error('Ошибка при загрузке изображения:', error);
             }
         };
+        fetchImage()
 
-        if (imageFileId) {
-            fetchImage();
-        }else{
-            setImageUrl(defaultImagePassport);
-            console.log('test',imageUrl)
-        }
+
+        // if (imageFileId) {
+        //     fetchImage();
+        // }else{
+        //     setImageUrl(defaultImagePassport);
+        //     console.log('test',imageUrl)
+        // }
     }, [imageFileId]);
 
     const submitOnServerEnginesData =  async (values,action,method) =>{
