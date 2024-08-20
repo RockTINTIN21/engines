@@ -13,6 +13,7 @@ import UniversalModal from "../../components/Modals/UniversalModal/UniversalModa
 import {getAllEngines, getApiDataSearch, getFetchData} from "../../../Validation.js";
 import {Table} from "react-bootstrap";
 import {Link} from "react-router-dom";
+import SyncSelectMenu from "../../components/Forms/SyncSelectMenu/SyncSelectMenu.jsx";
 
 function AggregateJournal() {
     const [isMainHovered, setIsMainHovered] = useState(false);
@@ -23,6 +24,9 @@ function AggregateJournal() {
     const [modalType, setModalType] = useState('');
     const [modalTitle, setModalTitle] = useState('');
     const [positionsData, setPositionsData] = useState([]);
+    const [positions,setPositions] = useState( [''])
+    const [installationLocations,setInstallationLocations] = useState([''])
+    const [isDataLoaded, setIsDataLoaded] = useState(false); // Состояние загрузки данных
 
     const formSelectCoupling = ['Готов', 'Не готов'];
     const formSelectStatus = ['В кап. рем', 'Готов', 'В ср. рем'];
@@ -41,72 +45,53 @@ function AggregateJournal() {
             console.log('Ошибка:', response.error);
         } else {
             setPositionsData(response.data);
+            setPositions(response.data.map(p => p.position)); // Установите массив позиций
             if (response.data.length > 0) {
-                handlePositionChange(response.data[0].position); // Обновляем места установки для первой позиции по умолчанию
+                setInstallationLocations(response.data[0].installationPlaces || []); // Установите места установки для первой позиции
             }
         }
     };
-
-    const handlePositionChange = (selectedPosition) => {
-        const selectedData = positionsData.find(position => position.position === selectedPosition);
-        if (selectedData) {
-            console.log('Выбрано!')
-            updateFormFields(selectedPosition, selectedData.installationPlaces);
-        } else {
-            console.log('else')
-            updateFormFields(selectedPosition, []);
-        }
-    };
-
-    const updateFormFields = (position, installationPlaces) => {
-        console.log('installationPlaces',installationPlaces)
-        setInitialValues({
-            title: '',
-            position: position || '',
-            installationPlace: installationPlaces[0] || '',
-            inventoryNumber: '',
-            account: '',
-            type: '',
-            power: '',
-            coupling: formSelectCoupling[0],
-            status: formSelectStatus[0],
-            linkOnAddressStorage:'',
-            docFromPlace:'',
-            date: ''
-
-        });
-        console.log('installationPlaces2',installationPlaces)
-        const test = installationPlaces || ''
-        console.log('test',test)
-        const test2 = { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: test }
-        setFormFields([
-            { id: 'title', label: 'Название двигателя:', formType: 'field' },
-            { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
-            test2,
-            { formType: 'image'},
-            { id: 'inventoryNumber', label: 'Ивент. Номер:', formType: 'field' },
-            { id: 'account', label: 'Учет. Номер:', formType: 'field' },
-            { id: 'type', label: 'Тип:', formType: 'field' },
-            { id: 'power', label: 'Мощность:', formType: 'field' },
-            { id: 'coupling', label: 'Муфта:', formType: 'selectMenu', selectMenu: formSelectCoupling },
-            { id: 'status', label: 'Готов / Не готов:', formType: 'selectMenu', selectMenu: formSelectStatus },
-            { id: 'linkOnAddressStorage', label: 'Ссылка на адрес хранения:', formType: 'field' },
-            { id: 'docFromPlace', label: 'Ссылка на документацию от производителя:', formType: 'field' },
-            { id: 'date', label: 'Дата:', formType: 'date' }
-        ]);
-        console.log('formFields:',formFields[2])
-    };
-
     useEffect(() => {
         getFromServer();
     }, []);
+    // Установите начальные значения после загрузки данных
+    useEffect(() => {
+        if (positions.length > 0 && installationLocations.length > 0) {
+            setInitialValues({
+                title: '',
+                position: positions[0], // Установите значение по умолчанию
+                installationPlace: installationLocations[0], // Установите значение по умолчанию
+                inventoryNumber: '',
+                account: '',
+                type: '',
+                power: '',
+                coupling: formSelectCoupling[0],
+                status: formSelectStatus[0],
+                linkOnAddressStorage: '',
+                docFromPlace: '',
+                date: ''
+            });
+
+            setFormFields([
+                { id: 'title', label: 'Название двигателя:', formType: 'field' },
+                { formType: 'selectMenu', isPosition: true },
+                { formType: 'image' },
+                { id: 'inventoryNumber', label: 'Ивент. Номер:', formType: 'field' },
+                { id: 'account', label: 'Учет. Номер:', formType: 'field' },
+                { id: 'type', label: 'Тип:', formType: 'field' },
+                { id: 'power', label: 'Мощность:', formType: 'field' },
+                { id: 'coupling', label: 'Муфта:', formType: 'selectMenu', selectMenu: formSelectCoupling },
+                { id: 'status', label: 'Готов / Не готов:', formType: 'selectMenu', selectMenu: formSelectStatus },
+                { id: 'linkOnAddressStorage', label: 'Ссылка на адрес хранения:', formType: 'field' },
+                { id: 'docFromPlace', label: 'Ссылка на документацию от производителя:', formType: 'field' },
+                { id: 'date', label: 'Дата:', formType: 'date' }
+            ]);
+        }
+    }, [positions, installationLocations]); // Зависимость от позиций и мест установки
 
     useEffect(() => {
-        if (positionsData.length > 0) {
-            const defaultPosition = positionsData[0].position;
-            handlePositionChange(defaultPosition);
-        }
-    }, [positionsData]);
+        console.log('positions3:',positions)
+    }, [positions]);
 
     const saveFormType = async () => {
         // Открытие модального окна
@@ -114,6 +99,7 @@ function AggregateJournal() {
         setModalType('form');
         setShowModal(true);
     };
+
 
     const [status, setStatus] = useState('Здесь пока ничего нет. Начните искать в поиске');
     const formSelectList = [
@@ -321,8 +307,6 @@ function AggregateJournal() {
                 onSubmit={handleDataSubmission}
                 action='addEngine'
                 method='POST'
-                onPositionChange={handlePositionChange}  // Передаем функцию для обновления мест установки
-                positionsData={positionsData}  // Передаем positionsData в UniversalModal
             />
         </>
     )

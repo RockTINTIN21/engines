@@ -16,6 +16,7 @@ import UniversalModal from "../../components/Modals/UniversalModal/UniversalModa
 import { fetchData, getApiDataSearch, getFetchData } from "../../../Validation.js";
 import FileUpload from "../../components/Forms/FileUpload/FileUpload.jsx";
 import SuccessModal from "../../components/Modals/SuccessModal/SuccessModal.jsx";
+import SyncSelectMenu from "../../components/Forms/SyncSelectMenu/SyncSelectMenu.jsx";
 
 function EnginePassport() {
     const { engineId } = useParams();
@@ -32,8 +33,10 @@ function EnginePassport() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const repairHistorySelectMenu = ['Средний рем.', 'Капитальный рем.', 'Текущий']
     const [initialValuesForRepair, setInitialValuesForRepair] = useState({})
-
-
+    const [initialValues, setInitialValues] = useState({                historyOfTheInstallation: [''],
+        historyOfTheRepair: ['']})
+    const [positions,setPositions] = useState( [''])
+    const [installationLocations,setInstallationLocations] = useState([''])
 
     const closeUniversalModal = () => setShowSuccessModal(false);
     const handleDataSubmission = () => {
@@ -44,19 +47,18 @@ function EnginePassport() {
         setShowModal(false);
     };
 
-    const [formSelectLocation, setFormSelectLocation] = useState([{ mainPlace: '', subPlace: [] }]);
+    const [formValues, setFormValues] = useState(initialValues);
 
     const getFromServer = async () => {
         const response = await getFetchData('getPositions');
         if (response && response.status === 'error') {
             console.log('Ошибка:', response.error);
         } else {
-            const formattedData = response.data.map(position => ({
-                mainPlace: position.position,
-                subPlace: position.installationPlaces || [],
-            }));
-            setFormSelectLocation(formattedData);
             setPositionsData(response.data);
+            setPositions(response.data.map(p => p.position)); // Установите массив позиций
+            if (response.data.length > 0) {
+                setInstallationLocations(response.data[0].installationPlaces || []); // Установите места установки для первой позиции
+            }
             console.log('showModal:',showModal)
 
         }
@@ -71,22 +73,11 @@ function EnginePassport() {
 
 
     const [enginePassportFormDB, setEnginePassportFromDB] = useState(null);
+    useEffect(() => {
 
-    const [initialValues, setInitialValues] = useState({
-        title: '',
-        location: '',
-        installationPlace: '',
-        inventoryNumber: '',
-        type:'',
-        accountNumber: '',
-        power: '',
-        coupling: '',
-        status: '',
-        historyOfTheInstallation: [''],
-        historyOfTheRepair: [''],
-    });
+    }, []);
 
-    const [formValues, setFormValues] = useState(initialValues);
+
 
     const handleChangeValue = (e) => {
         const { name, value } = e.target;
@@ -105,9 +96,8 @@ function EnginePassport() {
     }, [formValues]);
 
     const [disabledButton, setDisabledButton] = useState(true);
-    const formSelectedLocation = formSelectLocation.map(elem => elem.mainPlace);
-    const saveFormType = (formType,values) =>{
-        if(formType === 'historyRepair'){
+    const saveFormType = (formType,values) => {
+        if (formType === 'historyRepair') {
             setInitialValuesForRepair({
                 engineId: engineId,
                 repairType: repairHistorySelectMenu[0],
@@ -115,69 +105,26 @@ function EnginePassport() {
                 repairDate: ''
             })
             setFormFieldsForRepairModal([
-                { id: 'repairType', label: 'Тип ремонта:', formType: 'selectMenu', selectMenu: repairHistorySelectMenu },
-                { id: 'repairDescription', label: 'Описание ремонта:', formType: 'fieldTextArea' },
-                { id: 'repairDate', label: 'Дата установки:', formType: 'date' }
+                {id: 'repairType', label: 'Тип ремонта:', formType: 'selectMenu', selectMenu: repairHistorySelectMenu},
+                {id: 'repairDescription', label: 'Описание ремонта:', formType: 'fieldTextArea'},
+                {id: 'repairDate', label: 'Дата установки:', formType: 'date'}
             ]);
             setModalTitle('Добавить в историю ремонтов');
             setModalType('form');
             setAction('addHistoryRepair');
             setShowModal(true)
-        }else if(formType === 'retryMenu'){
+        } else if (formType === 'retryMenu') {
             setModalTitle('Удалить запись');
             setAction('delEngine');
             setModalType('retryMenu');
             values.id = engineId
-            setPropsFormDeleteModal({values:values,action:'deleteEngine',method:'DELETE'})
+            setPropsFormDeleteModal({values: values, action: 'deleteEngine', method: 'DELETE'})
             setShowModal(true)
-        }else if(formType === 'successMenu') {
+        } else if (formType === 'successMenu') {
             setShowSuccessModal(true)
         }
-        // }else if(formType === 'updateLinkOnAddressStorage'){
-        //     const = {
-        //
-        //     }
-        //     setFormFieldsForRepairModal([
-        //         { id: 'repairType', label: 'Тип ремонта:', formType: 'selectMenu', selectMenu: repairHistorySelectMenu },
-        //         { id: 'repairDescription', label: 'Описание ремонта:', formType: 'fieldTextArea' },
-        //         { id: 'repairDate', label: 'Дата установки:', formType: 'date' }
-        //     ]);
-        // }
-
-
     }
 
-
-
-    // Функция для обработки изменений местоположения и обновления списка мест установки
-    const handlePositionChange = (selectedPosition) => {
-        const selectedData = positionsData.find(position => position.position === selectedPosition);
-        if (selectedData) {
-            console.log(selectedData.installationPlaces || [])
-            setSubPlace(selectedData.installationPlaces || []);
-        } else {
-            setSubPlace([]);
-        }
-    };
-
-    const handleLocationChange = (selectedLocation) => {
-        const selectedData = formSelectLocation.find(location => location.mainPlace === selectedLocation);
-        if (selectedData) {
-            setSubPlace(selectedData.subPlace || []);
-            setFormValues(prevState => ({
-                ...prevState,
-                location: selectedLocation,
-                installationPlace: selectedData.subPlace[0] || ''
-            }));
-        } else {
-            setSubPlace([]);
-            setFormValues(prevState => ({
-                ...prevState,
-                location: selectedLocation,
-                installationPlace: ''
-            }));
-        }
-    };
 
 
 
@@ -200,19 +147,11 @@ function EnginePassport() {
             submitOnServer(engineId);
         }
     }, [engineId]);
-
     useEffect(() => {
-        if (positionsData.length > 0) {
-            const defaultPosition = positionsData[0].position;
-            handlePositionChange(defaultPosition);
-        }
-    }, [positionsData]);
-
-    useEffect(() => {
-        if (enginePassportFormDB) {
-            setFormValues({
+        if(enginePassportFormDB){
+            setInitialValues({
                 title: enginePassportFormDB.title || '',
-                location: enginePassportFormDB.location || '',
+                position: enginePassportFormDB.location || '',
                 installationPlace: enginePassportFormDB.installationPlace || '',
                 inventoryNumber: enginePassportFormDB.inventoryNumber || '',
                 type: enginePassportFormDB.type || '',
@@ -223,58 +162,48 @@ function EnginePassport() {
                 comments: enginePassportFormDB.comments || '',
                 linkOnAddressStorage: enginePassportFormDB.linkOnAddressStorage || '',
                 docFromPlace: enginePassportFormDB.docFromPlace || '',
-                historyOfTheInstallation: enginePassportFormDB.historyOfTheInstallation || [''],
-                historyOfTheRepair: enginePassportFormDB.historyOfTheRepair || [''],
                 imageFilePath: enginePassportFormDB.imageFilePath || null
             });
-            if(enginePassportFormDB.imageFilePath){
-                setImageUrl(`http://localhost:3000/${enginePassportFormDB.imageFilePath}`)
-            }else{
-                setImageUrl(defaultImagePassport);
+        }
+    }, [positions, installationLocations]);
+    useEffect(() => {
+        if (enginePassportFormDB) {
+            if (positions.length > 0 && installationLocations.length > 0) {
+
+                setFormValues({
+                    title: enginePassportFormDB.title || '',
+                    position: enginePassportFormDB.location || '',
+                    installationPlace: enginePassportFormDB.installationPlace || '',
+                    inventoryNumber: enginePassportFormDB.inventoryNumber || '',
+                    type: enginePassportFormDB.type || '',
+                    accountNumber: enginePassportFormDB.accountNumber || '',
+                    power: enginePassportFormDB.power || '',
+                    coupling: enginePassportFormDB.coupling || '',
+                    status: enginePassportFormDB.status || '',
+                    comments: enginePassportFormDB.comments || '',
+                    linkOnAddressStorage: enginePassportFormDB.linkOnAddressStorage || '',
+                    docFromPlace: enginePassportFormDB.docFromPlace || '',
+                    historyOfTheInstallation: enginePassportFormDB.historyOfTheInstallation || [''],
+                    historyOfTheRepair: enginePassportFormDB.historyOfTheRepair || [''],
+                    imageFilePath: enginePassportFormDB.imageFilePath || null
+                });
+                if(enginePassportFormDB.imageFilePath){
+                    setImageUrl(`http://localhost:3000/${enginePassportFormDB.imageFilePath}`)
+                }else{
+                    setImageUrl(defaultImagePassport);
+                }
+
+                setDisabledButton(false);
             }
 
-            setDisabledButton(false);
         }
-    }, [enginePassportFormDB]);
-    // useEffect(() => {
-    //     console.log('imageFilePath',imageFilePath)
-    // }, [imageFilePath]);
-    // const [imageUrl, setImageUrl] = useState('');
-
-
-    // useEffect(() => {
-    //     const fetchImage = async () => {
-    //         console.log('AAAAA, imageField:', imageFileId);
-    //         try {
-    //             if (imageFileId) {
-    //                 const response = await fetch(`http://localhost:3000/api/image/${imageFileId}`);
-    //                 if (response.ok) {
-    //                     const blob = await response.blob(); // Получаем Blob объекта изображения
-    //                     setImageUrl(URL.createObjectURL(blob)); // Создаем URL для Blob и сохраняем его в состоянии
-    //                 } else {
-    //                     console.log('Ошибка загрузки изображения');
-    //                 }
-    //             } else {
-    //                 console.log('Изображение не указано, используем изображение по умолчанию');
-    //             }
-    //         } catch (error) {
-    //             console.error('Ошибка при загрузке изображения:', error);
-    //         }
-    //     };
-    //
-    //     fetchImage();
-    // }, [imageFileId]);
-    // useEffect(() => {
-    //     if (imageFilePath) {
-    //         setImageFilePath(`http://localhost:3000${imageFilePath}`);
-    //     }
-    // }, [imageFilePath]);
-    // useEffect(() => {
-    //     if (imageFilePath) {
-    //         const formattedImagePath = `http://localhost:3000/${imageFilePath.replace(/\\/g, '/')}`;
-    //         setImageFilePath(formattedImagePath);
-    //     }
-    // }, [imageFilePath]);
+    }, [enginePassportFormDB,installationLocations]);
+    useEffect(() => {
+        console.log('initValues:',initialValues)
+    }, [initialValues]);
+    useEffect(() => {
+        console.log('formValues:',formValues)
+    }, [formValues]);
     const submitOnServerEnginesData =  async (values,action,method) =>{
         try {
             values.id = engineId
@@ -285,7 +214,6 @@ function EnginePassport() {
             if (response.status === 'error') {
                 console.error('Ошибка:', response.message);
             } else {
-                getFromServer()
                 submitOnServer(engineId)
                 saveFormType('successMenu')
                 console.log('Cool!')
@@ -294,9 +222,6 @@ function EnginePassport() {
             console.error('Ошибка при отправке запроса:', error);
         }
     }
-    // useEffect(() => {
-    //     console.log('imageUrl',imageFilePath)
-    // }, [imageFilePath]);
     if (!enginePassportFormDB) {
         return <div className='text-center'><h1>Загрузка...</h1></div>; // Показываем индикатор загрузки, пока данные не загружены
     }
@@ -313,7 +238,7 @@ function EnginePassport() {
             />
             <div className="mt-4">
                 <div className="container-fluid">
-                    <Formik enableReinitialize={true} initialValues={formValues}
+                    <Formik enableReinitialize={true} initialValues={initialValues}
                             onSubmit={(values) => {
                                 const cleanedValues = { ...values };
                                 delete cleanedValues.historyOfTheInstallation;
@@ -365,29 +290,9 @@ function EnginePassport() {
                                         handleChange={handleChange}
                                         serverErrors={'test'}
                                     />
-                                    <FormSelect
-                                        label='Место нахождения:'
-                                        name="location"
-                                        value={values.location}
-                                        formikValue={formValues.location}
-                                        options={formSelectedLocation}
-                                        onChange={(e) => handleLocationChange(e.target.value)}
-                                        handleChange={handleChange}
-                                        serverErrors={'test'}
-                                        touched={touched}
-                                        errors={errors}
-                                    />
-                                    <FormSelect
-                                        label='Место установки:' name="installationPlace"
-                                        value={values.installationPlace}
-                                        formikValue={formValues.installationPlace}
-                                        options={subPlace}
-                                        onChange={handleChangeValue}
-                                        handleChange={handleChange}
-                                        serverErrors={'test'}
-                                        touched={touched}
-                                        errors={errors}
-                                    />
+                                    <SyncSelectMenu errors={errors} touched={touched} value={values} onChange={handleChange} onChangeValue={handleChangeValue} isPassport={true}
+                                                    defValueLocation={enginePassportFormDB.position}
+                                                    defValueInstallationPlace={enginePassportFormDB.installationPlace}/>
                                     <FormControl
                                         value={values.type}
                                         formikValue={formValues.type}

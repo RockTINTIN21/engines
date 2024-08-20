@@ -15,7 +15,8 @@ function EditDataBase(){
     const [method, setMethod] = useState('');
     const [initialValues, setInitialValues] = useState({});
     const [positionsData, setPositionsData] = useState([]); // Данные позиций с сервера
-    const [selectedInstallationPlaces, setSelectedInstallationPlaces] = useState([]);
+    const [positions,setPositions] = useState( [''])
+    const [installationLocations,setInstallationLocations] = useState([''])
 
     const handleDataSubmission = () => {
         setShowModal(false);
@@ -32,30 +33,20 @@ function EditDataBase(){
             console.log('Ошибка:', response.error);
         } else {
             setPositionsData(response.data);
-            console.log('Позиции успешно загружены!');
+            setPositionsData(response.data);
+            setPositions(response.data.map(p => p.position));
             if (response.data.length > 0) {
-                handlePositionChange(response.data[0].position); // Обновляем места установки для первой позиции по умолчанию
+                setInstallationLocations(response.data[0].installationPlaces || []);
             }
         }
     }
 
-    // Обновление installationPlaces при изменении позиции
-    const handlePositionChange = (selectedPosition) => {
-        const selectedData = positionsData.find(position => position.position === selectedPosition);
-        if (selectedData) {
-            setSelectedInstallationPlaces(selectedData.installationPlaces || []);
-        } else {
-            setSelectedInstallationPlaces([]);
-        }
-    };
+
 
     useEffect(() => {
         getFromServer();
     }, []);
 
-    useEffect(()=>{
-        console.log('selectedInstallationPlaces:', selectedInstallationPlaces);
-    }, [selectedInstallationPlaces]);
 
     const saveFormType = (formType) => {
         switch (formType) {
@@ -77,7 +68,7 @@ function EditDataBase(){
 
             case 'delPosition':
                 setFormFields([
-                    { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
+                    { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position)},
                 ]);
                 setInitialValues({
                     position: positionsData[0]?.position || '',
@@ -91,7 +82,7 @@ function EditDataBase(){
 
             case 'addInstallationPlace':
                 setFormFields([
-                    { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
+                    { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position)},
                     { id: 'installationPlace', label: 'Необязательно - Места установки (через запятую):', formType: 'fieldTextArea' }
                 ]);
                 setInitialValues({
@@ -107,17 +98,14 @@ function EditDataBase(){
 
             case 'delInstallationPlace':
                 if (positionsData.length > 0) {
-                    const defaultPosition = positionsData[0].position;
-                    handlePositionChange(defaultPosition);
 
                     setInitialValues({
-                        position: defaultPosition,
-                        installationPlace: selectedInstallationPlaces[0] || ''
+                        position: positions[0] || '', // Установите значение по умолчанию
+                        installationPlace: installationLocations[0] || '', // Установите значение по умолчанию
                     });
 
                     setFormFields([
-                        { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
-                        { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: selectedInstallationPlaces },
+                        {formType: 'selectMenu',isPosition:true}
                     ]);
                 }
 
@@ -153,8 +141,6 @@ function EditDataBase(){
                 onSubmit={handleDataSubmission}
                 action={action}
                 method={method}
-                onPositionChange={handlePositionChange}  // Передаем функцию для обновления мест установки
-                positionsData={positionsData}  // Передаем positionsData в UniversalModal
             />
         </>
     )

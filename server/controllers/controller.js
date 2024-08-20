@@ -99,11 +99,13 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
             fs.writeFileSync(imageFilePath, req.file.buffer); // Сохранение файла на сервере
         }
 
+        // Здесь мы заменяем `place` на `location` в req.body
+        const location = req.body.position
         const engineInstance = new Engine();
         await engineInstance.updateEngine(
             engineId,
             req.body.title,
-            req.body.location,
+            location,
             req.body.installationPlace,
             req.body.inventoryNumber,
             req.body.accountNumber,
@@ -122,6 +124,7 @@ router.patch('/updateEngine/:id', upload.single('file'), async (req, res) => {
         res.status(500).json({ status: 'error', message: error.message });
     }
 });
+
 router.get('/image/:id', async (req, res) => {
     try {
         const engineId = req.params.id;

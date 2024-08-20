@@ -134,7 +134,7 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
 
                 return data;
             } catch (error) {
@@ -151,7 +151,7 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
 
                 return data;
             } catch (error) {
@@ -168,7 +168,7 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
 
                 return data;
             } catch (error) {
@@ -186,7 +186,7 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
 
                 return data;
             } catch (error) {
@@ -204,7 +204,7 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
 
                 return data;
             } catch (error) {
@@ -222,7 +222,8 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
+
 
                 return data;
             } catch (error) {
@@ -240,7 +241,8 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
+
 
                 return data;
             } catch (error) {
@@ -258,7 +260,8 @@ export const fetchData = async (values, action, method) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
+
 
                 return data;
             } catch (error) {
@@ -283,7 +286,7 @@ export const getFetchData = async (action) => {
                 }
 
                 const data = await response.json();
-                console.log('Ответ от сервера:', data);
+
 
                 return data;
             } catch (error) {

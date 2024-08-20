@@ -6,10 +6,11 @@ import SuccessModal from "../SuccessModal/SuccessModal.jsx";
 import { fetchData, validationSchema } from "../../../../Validation.js";
 import FileUpload from "../../Forms/FileUpload/FileUpload.jsx";
 import { useNavigate } from 'react-router-dom';
+import SyncSelectMenu from "../../Forms/SyncSelectMenu/SyncSelectMenu.jsx";
 const UniversalModal = ({ show, title, handleClose, formFields, modalType, closeModal, initialValues, action, method, onSubmit, positionsData, onPositionChange,propsFormDeleteModal }) => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [serverErrors, setServerErrors] = useState({});
-    const [installationPlaces, setInstallationPlaces] = useState([]); // Хранит места установки для выбранного местонахождения
+
     const navigate = useNavigate();
     const delEngine =  async () =>{
         try {
@@ -39,17 +40,7 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
     }
     const closeUniversalModal = () => setShowSuccessModal(false);
 
-    const changePosition = (selectedPosition) => {
-        const selectedData = positionsData.find(position => position.position === selectedPosition);
-        if (selectedData) {
-            setInstallationPlaces(selectedData.installationPlaces || []);
-        } else {
-            setInstallationPlaces([]);
-        }
-        if (onPositionChange) {
-            onPositionChange(selectedPosition);
-        }
-    };
+
 
     const submitOnServer = async (values, action, method) => {
         console.log('Данные для отправки:', values); // Логирование значений формы перед отправкой
@@ -92,30 +83,32 @@ const UniversalModal = ({ show, title, handleClose, formFields, modalType, close
                                             const { id, isPosition, formType, selectMenu } = field;
                                             switch (formType) {
                                                 case 'selectMenu':
-                                                    return (
-                                                        <>
-                                                            <Form.Label>{field.label}</Form.Label>
-                                                            <Form.Select
-                                                                id={id}
-                                                                name={id}
-                                                                value={values[id]}
-                                                                onChange={(e) => {
-                                                                    handleChange(e);  // Сначала обрабатываем изменение через Formik
-                                                                    if (isPosition) {
-                                                                        changePosition(e.target.value);  // Вызываем функцию изменения позиции
-                                                                    }
-                                                                }}
-                                                                isInvalid={touched[id] && (!!errors[id] || !!serverErrors[id])}
-                                                            >
-                                                                {selectMenu.map((option, i) => (
-                                                                    <option key={i} value={typeof option === 'object' ? option.position : option}>
-                                                                        {typeof option === 'object' ? option.position : option}
-                                                                    </option>
-                                                                ))}
-                                                            </Form.Select>
-                                                            <Form.Control.Feedback type="invalid">{errors[id] || serverErrors[id]}</Form.Control.Feedback>
-                                                        </>
-                                                    );
+                                                    if(isPosition){
+                                                        return <SyncSelectMenu errors={errors} onChange={handleChange} touched={touched} value={values}/>
+
+                                                    }else{
+                                                        return(
+                                                            <>
+                                                                <Form.Label>{field.label}</Form.Label>
+                                                                <Form.Select
+                                                                    id={id}
+                                                                    name={id}
+                                                                    value={values[id]}
+                                                                    onChange={(e) => {
+                                                                        handleChange(e);  // Сначала обрабатываем изменение через Formik
+                                                                    }}
+                                                                    isInvalid={touched[id] && (!!errors[id] || !!serverErrors[id])}
+                                                                >
+                                                                    {selectMenu.map((option, i) => (
+                                                                        <option key={i} value={typeof option === 'object' ? option.position : option}>
+                                                                            {typeof option === 'object' ? option.position : option}
+                                                                        </option>
+                                                                    ))}
+                                                                </Form.Select>
+                                                                <Form.Control.Feedback type="invalid">{errors[id] || serverErrors[id]}</Form.Control.Feedback>
+                                                            </>
+                                                        )
+                                                    }
                                                 case 'date':
                                                     return (
                                                         <>
