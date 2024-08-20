@@ -53,11 +53,13 @@ function AggregateJournal() {
             console.log('Выбрано!')
             updateFormFields(selectedPosition, selectedData.installationPlaces);
         } else {
+            console.log('else')
             updateFormFields(selectedPosition, []);
         }
     };
 
     const updateFormFields = (position, installationPlaces) => {
+        console.log('installationPlaces',installationPlaces)
         setInitialValues({
             title: '',
             position: position || '',
@@ -73,10 +75,14 @@ function AggregateJournal() {
             date: ''
 
         });
+        console.log('installationPlaces2',installationPlaces)
+        const test = installationPlaces || ''
+        console.log('test',test)
+        const test2 = { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: test }
         setFormFields([
             { id: 'title', label: 'Название двигателя:', formType: 'field' },
             { id: 'position', label: 'Место нахождения:', formType: 'selectMenu', selectMenu: positionsData.map(position => position.position), isPosition: true },
-            { id: 'installationPlace', label: 'Место установки:', formType: 'selectMenu', selectMenu: installationPlaces },
+            test2,
             { formType: 'image'},
             { id: 'inventoryNumber', label: 'Ивент. Номер:', formType: 'field' },
             { id: 'account', label: 'Учет. Номер:', formType: 'field' },
@@ -88,6 +94,7 @@ function AggregateJournal() {
             { id: 'docFromPlace', label: 'Ссылка на документацию от производителя:', formType: 'field' },
             { id: 'date', label: 'Дата:', formType: 'date' }
         ]);
+        console.log('formFields:',formFields[2])
     };
 
     useEffect(() => {

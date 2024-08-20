@@ -179,7 +179,7 @@ export const fetchData = async (values, action, method) => {
             console.log('В фетч:', values);
             try {
                 console.log(requestOptions)
-                const response = await fetch("http://${serverIP}/api/addPosition", requestOptions);
+                const response = await fetch(`http://${serverIP}/api/addPosition`, requestOptions);
 
                 if (!response.ok) {
                     throw new Error(`Ошибка HTTP: ${response.status}`);

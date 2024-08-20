@@ -21,13 +21,13 @@ function EnginePassport() {
     const { engineId } = useParams();
     const [subPlace, setSubPlace] = useState([]); // Состояние для подстановки мест установки
     const [showModal, setShowModal] = useState(false);
-    const [formFields, setFormFields] = useState([]);
+    // const [formFields, setFormFields] = useState([]);
     const [modalType, setModalType] = useState('');
     const [modalTitle, setModalTitle] = useState('');
     const [positionsData, setPositionsData] = useState([]);
     const [formFieldForRepairModal,setFormFieldsForRepairModal] = useState([])
     const [action, setAction] = useState(null)
-    const [imageFileId, setImageFileId] = useState(null); // Добавляем новое состояние для imageFileId
+    const [imageUrl, setImageUrl] = useState(null); // Добавляем новое состояние для imageFileId
     const [propsFormDeleteModal,setPropsFormDeleteModal] = useState(null)
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const repairHistorySelectMenu = ['Средний рем.', 'Капитальный рем.', 'Текущий']
@@ -76,7 +76,7 @@ function EnginePassport() {
         title: '',
         location: '',
         installationPlace: '',
-        iventNumber: '',
+        inventoryNumber: '',
         type:'',
         accountNumber: '',
         power: '',
@@ -189,8 +189,6 @@ function EnginePassport() {
             } else {
                 setEnginePassportFromDB(response.data);  // Обновляем состояние
                 console.log('Данные двигателя:', response.data);
-                setImageFileId(response.data.imageFileId)
-                console.log('setImageFieldInStart:', imageFileId)
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса:', error);
@@ -216,7 +214,7 @@ function EnginePassport() {
                 title: enginePassportFormDB.title || '',
                 location: enginePassportFormDB.location || '',
                 installationPlace: enginePassportFormDB.installationPlace || '',
-                iventNumber: enginePassportFormDB.inventoryNumber || '',
+                inventoryNumber: enginePassportFormDB.inventoryNumber || '',
                 type: enginePassportFormDB.type || '',
                 accountNumber: enginePassportFormDB.accountNumber || '',
                 power: enginePassportFormDB.power || '',
@@ -227,45 +225,56 @@ function EnginePassport() {
                 docFromPlace: enginePassportFormDB.docFromPlace || '',
                 historyOfTheInstallation: enginePassportFormDB.historyOfTheInstallation || [''],
                 historyOfTheRepair: enginePassportFormDB.historyOfTheRepair || [''],
-                imageFileId: enginePassportFormDB.imageFileId || defaultImagePassport
+                imageFilePath: enginePassportFormDB.imageFilePath || null
             });
+            if(enginePassportFormDB.imageFilePath){
+                setImageUrl(`http://localhost:3000/${enginePassportFormDB.imageFilePath}`)
+            }else{
+                setImageUrl(defaultImagePassport);
+            }
+
             setDisabledButton(false);
         }
     }, [enginePassportFormDB]);
-    const [imageUrl, setImageUrl] = useState('');
+    // useEffect(() => {
+    //     console.log('imageFilePath',imageFilePath)
+    // }, [imageFilePath]);
+    // const [imageUrl, setImageUrl] = useState('');
 
 
-    useEffect(() => {
-        const fetchImage = async () => {
-            console.log('AAAAA,imageField:',imageFileId)
-            try {
-                if(imageFileId){
-                    const response = await fetch(`http://localhost:3000/api/image/${imageFileId}`);
-                    if (response.ok) {
-                        const blob = await response.blob(); // Получаем Blob объекта изображения
-                        setImageUrl(URL.createObjectURL(blob)); // Создаем URL для Blob и сохраняем его в состоянии
-                    } else {
-                        console.log('error')
-                    }
-                }else{
-                    // setImageUrl(defaultImagePassport);
-                    console.log('else')
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке изображения:', error);
-            }
-        };
-        fetchImage()
-
-
-        // if (imageFileId) {
-        //     fetchImage();
-        // }else{
-        //     setImageUrl(defaultImagePassport);
-        //     console.log('test',imageUrl)
-        // }
-    }, [imageFileId]);
-
+    // useEffect(() => {
+    //     const fetchImage = async () => {
+    //         console.log('AAAAA, imageField:', imageFileId);
+    //         try {
+    //             if (imageFileId) {
+    //                 const response = await fetch(`http://localhost:3000/api/image/${imageFileId}`);
+    //                 if (response.ok) {
+    //                     const blob = await response.blob(); // Получаем Blob объекта изображения
+    //                     setImageUrl(URL.createObjectURL(blob)); // Создаем URL для Blob и сохраняем его в состоянии
+    //                 } else {
+    //                     console.log('Ошибка загрузки изображения');
+    //                 }
+    //             } else {
+    //                 console.log('Изображение не указано, используем изображение по умолчанию');
+    //             }
+    //         } catch (error) {
+    //             console.error('Ошибка при загрузке изображения:', error);
+    //         }
+    //     };
+    //
+    //     fetchImage();
+    // }, [imageFileId]);
+    // useEffect(() => {
+    //     if (imageFilePath) {
+    //         setImageFilePath(`http://localhost:3000${imageFilePath}`);
+    //     }
+    // }, [imageFilePath]);
+    // useEffect(() => {
+    //     if (imageFilePath) {
+    //         const formattedImagePath = `http://localhost:3000/${imageFilePath.replace(/\\/g, '/')}`;
+    //         setImageFilePath(formattedImagePath);
+    //     }
+    // }, [imageFilePath]);
     const submitOnServerEnginesData =  async (values,action,method) =>{
         try {
             values.id = engineId
@@ -285,9 +294,9 @@ function EnginePassport() {
             console.error('Ошибка при отправке запроса:', error);
         }
     }
-    useEffect(() => {
-        console.log('test',enginePassportFormDB)
-    }, [enginePassportFormDB]);
+    // useEffect(() => {
+    //     console.log('imageUrl',imageFilePath)
+    // }, [imageFilePath]);
     if (!enginePassportFormDB) {
         return <div className='text-center'><h1>Загрузка...</h1></div>; // Показываем индикатор загрузки, пока данные не загружены
     }
@@ -390,10 +399,10 @@ function EnginePassport() {
                                         errors={errors}
                                         serverErrors={'test'}/>
                                     <FormControl
-                                        value={values.iventNumber}
-                                        formikValue={formValues.iventNumber}
+                                        value={values.inventoryNumber}
+                                        formikValue={formValues.inventoryNumber}
                                         label='Ивент. номер:'
-                                        name='iventNumber'
+                                        name='inventoryNumber'
                                         onChange={handleChangeValue}
                                         handleChange={handleChange}
                                         touched={touched}

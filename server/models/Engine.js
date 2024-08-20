@@ -2,6 +2,11 @@ import EngineModelDB from '../models/engineModelDB.js';
 import PositionModelDB from "./PositionModelDB.js";
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from "fs";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 class Engine {
     // Метод для добавления новой позиции в коллекцию `Position`
     async addPosition(position, installationPlace) {
@@ -187,15 +192,23 @@ class Engine {
     }
 
     // Остальные методы остаются неизменными
-    async addEngine(title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFileId, docFromPlace, linkOnAddressStorage) {
-        console.log('Данные из формы:', title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFileId, docFromPlace, linkOnAddressStorage);
+    async addEngine(title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFilePath, docFromPlace, linkOnAddressStorage) {
+        console.log('Данные из формы:', title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, historyOfTheInstallation, historyOfTheRepair, date, imageFilePath, docFromPlace, linkOnAddressStorage);
 
         const engineExists = await EngineModelDB.findOne({ title: title.toLowerCase() });
 
         if (!engineExists) {
             const currentDate = moment().format('YYYY-MM-DD');
             const engineId = uuidv4();
-            console.log('В id пришел:',imageFileId)
+            console.log('В id пришел:', imageFilePath);
+
+            // Проверяем, был ли предоставлен файл изображения
+            let relativeImagePath = null;
+            if (imageFilePath) {
+                // Создаем относительный путь, если файл изображения был предоставлен
+                relativeImagePath = `uploads/${path.basename(imageFilePath)}`;
+            }
+
             const newEngine = new EngineModelDB({
                 _id: engineId,
                 title,
@@ -213,9 +226,9 @@ class Engine {
                 ],
                 historyOfTheRepair,
                 date,
-                imageFileId,
-                docFromPlace: docFromPlace || '', // Учет необязательных полей
-                linkOnAddressStorage: linkOnAddressStorage || '' // Учет необязательных полей
+                imageFilePath: relativeImagePath, // Используем относительный путь или null
+                docFromPlace: docFromPlace || '',
+                linkOnAddressStorage: linkOnAddressStorage || ''
             });
 
             await newEngine.save();
@@ -224,6 +237,9 @@ class Engine {
             throw new Error("Двигатель с таким названием уже существует");
         }
     }
+
+
+
     // Метод для получения всех двигателей
     async getAllEngines() {
         try {
@@ -234,61 +250,104 @@ class Engine {
             throw error;  // Передача ошибки дальше
         }
     }
-    async updateEngine(engineId, title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, imageFileId, docFromPlace, linkOnAddressStorage) {
-        const engine = await EngineModelDB.findOne({ _id: engineId });
-
-        if (!engine) {
-            throw new Error("Двигатель с таким ID не найден");
-        }else{
-            console.log('Двигатель с таким ID найден, продолжаем работу...')
-        }
-
-        const currentDate = moment().format('YYYY-MM-DD');
-        if (engine.installationPlace !== installationPlace) {
-            engine.historyOfTheInstallation.push({
-                installationPlace,
-                status: 'Установлено',
-                date: currentDate
-            });
-        }else{
-            console.log('Продолжаем работу')
-        }
-
-        engine.title = title;
-        engine.location = location;
-        engine.inventoryNumber = inventoryNumber;
-        console.log('Продолжаем работу1')
-        engine.accountNumber = accountNumber;
-        engine.type = type;
-        engine.power = power;
-        engine.coupling = coupling;
-        engine.status = status;
-        engine.comments = comments;
-        console.log('Продолжаем работу2')
-        engine.imageFileId = imageFileId;
-        engine.docFromPlace = docFromPlace || engine.docFromPlace; // Обновление только при предоставлении нового значения
-        engine.linkOnAddressStorage = linkOnAddressStorage || engine.linkOnAddressStorage; // Обновление только при предоставлении нового значения
-        console.log('Продолжаем работу3')
+    async updateEngine(engineId, title, location, installationPlace, inventoryNumber, accountNumber, type, power, coupling, status, comments, newImageFilePath, docFromPlace, linkOnAddressStorage) {
         try {
+            const engine = await EngineModelDB.findOne({ _id: engineId });
+
+            if (!engine) {
+                throw new Error("Двигатель с таким ID не найден");
+            } else {
+                console.log('Двигатель с таким ID найден, продолжаем работу...');
+            }
+
+            const currentDate = moment().format('YYYY-MM-DD');
+
+            if (engine.installationPlace !== installationPlace) {
+                engine.historyOfTheInstallation.push({
+                    installationPlace,
+                    status: 'Установлено',
+                    date: currentDate
+                });
+            }
+
+            // Обработка новой картинки
+            if (newImageFilePath && newImageFilePath !== 'null') {
+                // Удаляем старую картинку, если она существует
+                if (engine.imageFilePath && engine.imageFilePath !== 'null') {
+                    const oldImagePath = path.resolve(engine.imageFilePath);
+                    fs.access(oldImagePath, fs.constants.F_OK, (err) => {
+                        if (!err) {
+                            fs.unlink(oldImagePath, (err) => {
+                                if (err) {
+                                    console.error('Ошибка при удалении старого изображения:', err);
+                                } else {
+                                    console.log('Старое изображение успешно удалено:', oldImagePath);
+                                }
+                            });
+                        } else {
+                            console.log('Старое изображение не найдено:', oldImagePath);
+                        }
+                    });
+                }
+                // Обновляем путь к новому изображению
+                engine.imageFilePath = `uploads/${path.basename(newImageFilePath)}`;
+            }
+
+            // Обновляем остальные поля двигателя
+            engine.title = title;
+            engine.location = location;
+            engine.inventoryNumber = inventoryNumber;
+            engine.accountNumber = accountNumber;
+            engine.type = type;
+            engine.power = power;
+            engine.coupling = coupling;
+            engine.status = status;
+            engine.comments = comments;
+            engine.docFromPlace = docFromPlace || engine.docFromPlace;  // Обновление только при предоставлении нового значения
+            engine.linkOnAddressStorage = linkOnAddressStorage || engine.linkOnAddressStorage;  // Обновление только при предоставлении нового значения
+
+            // Сохраняем изменения
             await engine.save();
             console.log('Двигатель успешно обновлен.');
         } catch (error) {
-            console.error('Ошибка при сохранении двигателя:', error);
+            console.error('Ошибка при обновлении двигателя:', error.message);
             throw error;
         }
-        console.log('Двигатель успешно обновлен.');
     }
+
+
 
     async deleteEngine(engineId) {
         try {
             console.log('Удаление двигателя с ID:', engineId);
 
-            // Ищем и удаляем двигатель из базы данных
-            const deletedEngine = await EngineModelDB.findByIdAndDelete(engineId);
+            // Ищем двигатель в базе данных
+            const engine = await EngineModelDB.findById(engineId);
 
-            if (!deletedEngine) {
+            if (!engine) {
                 throw new Error("Двигатель не найден");
             }
+
+            // Если у двигателя есть изображение, удаляем его
+            if (engine.imageFilePath) {
+                const imagePath = path.resolve(engine.imageFilePath);
+                fs.access(imagePath, fs.constants.F_OK, (err) => {
+                    if (!err) {
+                        fs.unlink(imagePath, (err) => {
+                            if (err) {
+                                console.error('Ошибка при удалении изображения:', err);
+                            } else {
+                                console.log('Изображение успешно удалено:', imagePath);
+                            }
+                        });
+                    } else {
+                        console.log('Изображение не найдено:', imagePath);
+                    }
+                });
+            }
+
+            // Удаляем двигатель из базы данных
+            const deletedEngine = await EngineModelDB.findByIdAndDelete(engineId);
 
             console.log('Двигатель успешно удален.');
             return deletedEngine;  // Возвращаем удаленный двигатель, если нужно

@@ -25,12 +25,12 @@ const engineSchema = new mongoose.Schema({
     coupling: String,
     status: String,
     comments: String,
-    docFromPlace: { type: String, required: false }, // Необязательное поле
-    linkOnAddressStorage: { type: String, required: false }, // Необязательное поле
+    docFromPlace: { type: String, required: false },
+    linkOnAddressStorage: { type: String, required: false },
     historyOfTheInstallation: [installationHistorySchema],
     historyOfTheRepair: [repairHistorySchema],
     date: String,
-    imageFileId: mongoose.Schema.Types.ObjectId  // ID файла в GridFS
+    imageFilePath: String  // Путь к файлу на сервере
 });
 
 const EngineModelDB = mongoose.model('Engine', engineSchema);
