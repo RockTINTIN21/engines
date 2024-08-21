@@ -14,7 +14,7 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
-const storage = multer.memoryStorage();  // Используем память для хранения файла до обработки
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const router = express.Router();
