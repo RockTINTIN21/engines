@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import {string} from "yup";
 
 const installationHistorySchema = new mongoose.Schema({
     installationPlace: String,

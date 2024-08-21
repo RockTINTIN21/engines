@@ -25,11 +25,16 @@ class Engine {
                 throw error;
             }
 
+            // Если installationPlace указано, разделяем его на массив, удаляя пробелы вокруг элементов
+            const installationPlacesArray = installationPlace
+                ? installationPlace.split(',').map(place => place.trim())
+                : [];
+
             // Создаем новую позицию
             const newPosition = new PositionModelDB({
                 position,  // Храним введенное значение как есть
                 positionLowerCase,  // Храним значение в нижнем регистре для проверки уникальности
-                installationPlaces: installationPlace ? [installationPlace] : []  // Если installationPlace указано, добавляем его в массив, иначе оставляем пустой массив
+                installationPlaces: installationPlacesArray  // Используем массив с разделенными местами
             });
 
             await newPosition.save();  // Сохраняем новую позицию в базе данных
@@ -39,6 +44,7 @@ class Engine {
             throw error;
         }
     }
+
     async getPositions() {
         try {
             const positions = await PositionModelDB.find({});  // Получаем все позиции
@@ -220,7 +226,7 @@ class Engine {
                 power,
                 coupling,
                 status,
-                comments: comments || 'Нет комментариев',
+                comments: comments || 'Нет',
                 historyOfTheInstallation: [
                     { installationPlace, status: 'Установлено', date: currentDate }
                 ],
@@ -269,7 +275,7 @@ class Engine {
                     date: currentDate
                 });
             }
-
+            engine.installationPlace = installationPlace;
             // Обработка новой картинки
             if (newImageFilePath && newImageFilePath !== 'null') {
                 // Удаляем старую картинку, если она существует

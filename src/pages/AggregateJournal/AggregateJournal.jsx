@@ -125,8 +125,9 @@ function AggregateJournal() {
     const [engineList, setEngineList] = useState([]);
     const submitOnServer = async (values) => {
         const response = await getApiDataSearch(values, actionSearch);
-        if (response.status === 'error') {
-            setStatus('Ничего не найдено');
+        setStatus('Ничего не найдено')
+        if (response.status === 'error' || response.data < 1) {
+            setEngineList('')
         } else {
             setStatus('');
             // Оборачиваем объект в массив, если ответ не является массивом
@@ -146,6 +147,12 @@ function AggregateJournal() {
     useEffect(() => {
         console.log('Двигатели:',engineList)
     }, [engineList]);
+    function truncateText(text, maxLength) {
+        if (text.length > maxLength) {
+            return text.slice(0, maxLength) + '...';
+        }
+        return text;
+    }
     return (
         <>
             <MenuHeader title="Агрегатный журнал" pathToMain={"/"} titleButtonMain="Меню" imgPathToMain={MenuIcon}
@@ -227,7 +234,7 @@ function AggregateJournal() {
                             <th>Тип:</th>
                             <th>Мощность:</th>
                             <th>Муфта:</th>
-                            <th>Готов / Не готов:</th>
+                            <th>Статус:</th>
                             <th>Комментарии:</th>
                             <th>Дата:</th>
                         </tr>
@@ -242,7 +249,7 @@ function AggregateJournal() {
                                 const renderRow = () => (
                                     <>
                                         <td>{index + 1}</td>
-                                        <td>{engine.title}</td>
+                                        <td>{truncateText(engine.title, 8)}</td>
                                         <td>{engine.location}</td>
                                         <td>{engine.installationPlace}</td>
                                         <td>{engine.inventoryNumber}</td>

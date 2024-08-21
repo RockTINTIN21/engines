@@ -102,7 +102,7 @@ function SyncSelectMenu({ value, onChange, touched, errors, isPassport, defValue
                     id='position'
                     name='position'
                     value={value.position || ''}
-                    onChange={(e) => { onChange(e); handleChangePosition(e); onChangeValue(e)}}
+                    onChange={(e) => { onChange(e); handleChangePosition(e);}}
                     isInvalid={touched.position && !!errors.position}
                     className={selectClass}
                 >
@@ -120,7 +120,7 @@ function SyncSelectMenu({ value, onChange, touched, errors, isPassport, defValue
                     id='installationPlace'
                     name='installationPlace'
                     value={value.installationPlace || ''}
-                    onChange={(e)=>{onChange(e);onChangeValue(e)}}
+                    onChange={(e)=>{onChange(e);}}
                     isInvalid={touched.installationPlace && !!errors.installationPlace}
                     className={selectClass}
                 >

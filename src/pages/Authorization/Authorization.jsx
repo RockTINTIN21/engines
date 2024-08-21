@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext.jsx';
-
+import config from '../../../server/config.js';
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -13,7 +13,7 @@ function LoginPage() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:3000/login', { username, password });
+            const response = await axios.post(`http://${config.serverIP}/login`, { username, password });
             if (response.data.status === 'success') {
                 console.log('Успешно вошли!');
                 login({ username });
@@ -32,7 +32,7 @@ function LoginPage() {
                 <h3 className="text-center mb-4">Login</h3>
                 <form onSubmit={handleLogin}>
                     <div className="mb-3">
-                        <label htmlFor="username" className="form-label">Логин</label>
+                        <label htmlFor="Логин" className="form-label">Логин</label>
                         <input
                             type="text"
                             className="form-control"
@@ -44,7 +44,7 @@ function LoginPage() {
                         />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="password" className="form-label">Password</label>
+                        <label htmlFor="password" className="form-label">Пароль</label>
                         <input
                             type="Пароль"
                             className="form-control"
@@ -55,7 +55,7 @@ function LoginPage() {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary w-100">Login</button>
+                    <button type="submit" className="btn btn-primary w-100">Войти</button>
                 </form>
             </div>
         </div>

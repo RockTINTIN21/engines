@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import express from 'express';
 import Engine from "../models/Engine.js";
-import mongoose from "mongoose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,9 +19,6 @@ const upload = multer({ storage });
 
 const router = express.Router();
 
-// Подключение к MongoDB
-const mongoURI = 'mongodb+srv://admin:77599557609@enginedb.ywnql.mongodb.net/?retryWrites=true&w=majority&appName=engineDB';
-const conn = mongoose.createConnection(mongoURI);
 
 router.post('/addEngine', upload.single('file'), async (req, res) => {
     try {

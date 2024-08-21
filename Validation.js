@@ -1,19 +1,7 @@
 import * as yup from "yup";
-const serverIP = 'localhost:3000'
-// Определение регулярных выражений и текстов ошибок для каждого поля
-const regx = {
-    title: { regx: null, errorText: '' },
-    position: { regx: null, errorText: '' },
-    installationPlace: { regx: null, errorText: '' },  // Это поле необязательное
-    iventNumber: { regx: null, errorText: '' },
-    account: { regx: null, errorText: '' },
-    type: { regx: null, errorText: '' },
-    power: { regx: null, errorText: '' },
-    coupling: { regx: null, errorText: '' },
-    status: { regx: null, errorText: '' },
-    date: { regx: null, errorText: '' },
-};
+import config from './server/config.js';
 
+const serverIP = config.serverIP
 // Функция для создания схемы валидации на основе действия
 export const validationSchema = (action) => {
     switch (action) {

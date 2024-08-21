@@ -17,6 +17,8 @@ import { fetchData, getApiDataSearch, getFetchData } from "../../../Validation.j
 import FileUpload from "../../components/Forms/FileUpload/FileUpload.jsx";
 import SuccessModal from "../../components/Modals/SuccessModal/SuccessModal.jsx";
 import SyncSelectMenu from "../../components/Forms/SyncSelectMenu/SyncSelectMenu.jsx";
+import config from '../../../server/config.js';
+
 
 function EnginePassport() {
     const { engineId } = useParams();
@@ -33,11 +35,12 @@ function EnginePassport() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const repairHistorySelectMenu = ['Средний рем.', 'Капитальный рем.', 'Текущий']
     const [initialValuesForRepair, setInitialValuesForRepair] = useState({})
-    const [initialValues, setInitialValues] = useState({                historyOfTheInstallation: [''],
+    const [initialValues, setInitialValues] = useState({
+        historyOfTheInstallation: [''],
         historyOfTheRepair: ['']})
     const [positions,setPositions] = useState( [''])
     const [installationLocations,setInstallationLocations] = useState([''])
-
+    const serverIP = config.serverIP
     const closeUniversalModal = () => setShowSuccessModal(false);
     const handleDataSubmission = () => {
         setShowModal(false);
@@ -71,20 +74,9 @@ function EnginePassport() {
         getFromServer();
     }, []);
 
-
     const [enginePassportFormDB, setEnginePassportFromDB] = useState(null);
-    useEffect(() => {
-
-    }, []);
-
-
-
     const handleChangeValue = (e) => {
-        const { name, value } = e.target;
-        setFormValues(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+        console.log(e.target.value)
     };
 
     useEffect(() => {
@@ -125,9 +117,6 @@ function EnginePassport() {
         }
     }
 
-
-
-
     const submitOnServer = async (engineId) => {
         try {
             const response = await getApiDataSearch({ engineId }, 'getEngineByID');
@@ -135,7 +124,6 @@ function EnginePassport() {
                 console.error('Ошибка:', response.message);
             } else {
                 setEnginePassportFromDB(response.data);  // Обновляем состояние
-                console.log('Данные двигателя:', response.data);
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса:', error);
@@ -169,7 +157,6 @@ function EnginePassport() {
     useEffect(() => {
         if (enginePassportFormDB) {
             if (positions.length > 0 && installationLocations.length > 0) {
-
                 setFormValues({
                     title: enginePassportFormDB.title || '',
                     position: enginePassportFormDB.location || '',
@@ -188,7 +175,7 @@ function EnginePassport() {
                     imageFilePath: enginePassportFormDB.imageFilePath || null
                 });
                 if(enginePassportFormDB.imageFilePath){
-                    setImageUrl(`http://localhost:3000/${enginePassportFormDB.imageFilePath}`)
+                    setImageUrl(`http://${serverIP}/${enginePassportFormDB.imageFilePath}`)
                 }else{
                     setImageUrl(defaultImagePassport);
                 }
@@ -202,13 +189,13 @@ function EnginePassport() {
         console.log('initValues:',initialValues)
     }, [initialValues]);
     useEffect(() => {
-        console.log('formValues:',formValues)
-    }, [formValues]);
+        console.log('Данные с сервера:',enginePassportFormDB)
+    }, [enginePassportFormDB]);
     const submitOnServerEnginesData =  async (values,action,method) =>{
         try {
             values.id = engineId
             console.log(
-                'Обновленные значения:',values
+                'Отправлены значения:',values
             )
             const response = await fetchData(values, action,method);
             if (response.status === 'error') {
@@ -216,7 +203,6 @@ function EnginePassport() {
             } else {
                 submitOnServer(engineId)
                 saveFormType('successMenu')
-                console.log('Cool!')
             }
         } catch (error) {
             console.error('Ошибка при отправке запроса:', error);
