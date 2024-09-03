@@ -76,7 +76,11 @@ function EnginePassport() {
 
     const [enginePassportFormDB, setEnginePassportFromDB] = useState(null);
     const handleChangeValue = (e) => {
-        console.log(e.target.value)
+        const { name, value } = e.target;
+        setFormValues(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
     };
 
     useEffect(() => {
@@ -280,8 +284,8 @@ function EnginePassport() {
                                                     defValueLocation={enginePassportFormDB.position}
                                                     defValueInstallationPlace={enginePassportFormDB.installationPlace}/>
                                     <FormControl
-                                        value={values.type}
-                                        formikValue={formValues.type}
+                                        value={formValues.type}
+                                        formikValue={values.type}
                                         label='Тип:'
                                         name='type'
                                         onChange={handleChangeValue}
@@ -290,8 +294,8 @@ function EnginePassport() {
                                         errors={errors}
                                         serverErrors={'test'}/>
                                     <FormControl
-                                        value={values.inventoryNumber}
-                                        formikValue={formValues.inventoryNumber}
+                                        value={formValues.inventoryNumber}
+                                        formikValue={values.inventoryNumber}
                                         label='Ивент. номер:'
                                         name='inventoryNumber'
                                         onChange={handleChangeValue}
@@ -400,57 +404,61 @@ function EnginePassport() {
                                 <Form.Group className="col-md col-12 mt-4 me-4 p-3 bg-gray styles-card flex-wrap"
                                             controlId="formBasicEmail">
                                     <div className="w-100 pb-4">
-                                        <Form.Label className="mb-0">История мест установки:</Form.Label></div>
-                                    <Table striped bordered hover>
-                                        <thead>
-                                        <tr>
-                                            <th>Место:</th>
-                                            <th>Статус:</th>
-                                            <th>Дата:</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {formValues.historyOfTheInstallation.map((elem, index) => (
-                                            <tr key={index}>
-                                                <td>{elem.installationPlace}</td>
-                                                <td>{elem.status}</td>
-                                                <td>{elem.date}</td>
+                                        <Form.Label className="mb-0">История мест установки:</Form.Label>
+                                    </div>
+                                    <div className={styles.historyTableContainer}> {/* Добавляем обертку с классом */}
+                                        <Table striped bordered hover>
+                                            <thead>
+                                            <tr>
+                                                <th>Место:</th>
+                                                <th>Статус:</th>
+                                                <th>Дата:</th>
                                             </tr>
-                                        ))}
-                                        </tbody>
-                                    </Table>
+                                            </thead>
+                                            <tbody>
+                                            {formValues.historyOfTheInstallation.map((elem, index) => (
+                                                <tr key={index}>
+                                                    <td>{elem.installationPlace}</td>
+                                                    <td>{elem.status}</td>
+                                                    <td>{elem.date}</td>
+                                                </tr>
+                                            ))}
+                                            </tbody>
+                                        </Table>
+                                    </div>
                                 </Form.Group>
                                 <Form.Group className="col-md col-12 mt-4 me-4 p-3 bg-gray styles-card flex-wrap"
                                             controlId="formBasicEmail">
                                     <div className="w-100 pb-4">
                                         <Form.Label className="mb-0 pb-1">История выполняемых ремонтов:</Form.Label>
-                                        <Button className="w-100" onClick={() => saveFormType('historyRepair')}>Добавить
-                                            запись</Button>
+                                        <Button className="w-100" onClick={() => saveFormType('historyRepair')}>Добавить запись</Button>
                                     </div>
-                                    <Table striped bordered hover>
-                                        <thead>
-                                        <tr>
-                                            <th>Ремонт:</th>
-                                            <th>Описание:</th>
-                                            <th>Дата:</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {formValues.historyOfTheRepair.length > 0 ? (
-                                            formValues.historyOfTheRepair.map((elem, index) => (
-                                                <tr key={index}>
-                                                    <td>{elem.repairType}</td>
-                                                    <td>{elem.repairDescription}</td>
-                                                    <td>{elem.repairDate}</td>
-                                                </tr>
-                                            ))
-                                        ) : (
+                                    <div className={styles.historyTableContainer}> {/* Оберните таблицу в этот контейнер */}
+                                        <Table striped bordered hover>
+                                            <thead>
                                             <tr>
-                                                <td colSpan="3" className="text-center">Здесь пока ничего нет</td>
+                                                <th>Ремонт:</th>
+                                                <th>Описание:</th>
+                                                <th>Дата:</th>
                                             </tr>
-                                        )}
-                                        </tbody>
-                                    </Table>
+                                            </thead>
+                                            <tbody>
+                                            {formValues.historyOfTheRepair.length > 0 ? (
+                                                formValues.historyOfTheRepair.map((elem, index) => (
+                                                    <tr key={index}>
+                                                        <td>{elem.repairType}</td>
+                                                        <td>{elem.repairDescription}</td>
+                                                        <td>{elem.repairDate}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="3" className="text-center">Здесь пока ничего нет</td>
+                                                </tr>
+                                            )}
+                                            </tbody>
+                                        </Table>
+                                    </div>
                                 </Form.Group>
                             </Form>
                         )}
