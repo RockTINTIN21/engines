@@ -1,7 +1,7 @@
 import * as yup from "yup";
-import serverConfig from './server/serverConfig.js';
+import clientConfig from './src/clientConfig.js';
 
-const serverIP = serverConfig.serverIP
+const serverIP = clientConfig.serverIP
 // Функция для создания схемы валидации на основе действия
 export const validationSchema = (action) => {
     switch (action) {
