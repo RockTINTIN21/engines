@@ -17,3 +17,11 @@ a:hover{
 .btnDelete{
     background-color: #E68B93!important;
 }
+.historyTableContainer {
+    max-height: 180px; /* Задайте максимальную высоту по вашему выбору */
+    overflow-y: auto;  /* Добавляет вертикальный скролл при необходимости */
+}
+
+.table th, .table td {
+    white-space: nowrap; /* Это предотвратит перенос текста */
+}

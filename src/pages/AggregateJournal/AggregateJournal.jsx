@@ -250,15 +250,15 @@ function AggregateJournal() {
                                     <>
                                         <td>{index + 1}</td>
                                         <td>{truncateText(engine.title, 8)}</td>
-                                        <td>{engine.location}</td>
-                                        <td>{engine.installationPlace}</td>
-                                        <td>{engine.inventoryNumber}</td>
-                                        <td>{engine.accountNumber}</td>
-                                        <td>{engine.type}</td>
-                                        <td>{engine.power} кВт</td>
-                                        <td>{engine.coupling}</td>
-                                        <td>{engine.status}</td>
-                                        <td>{engine.comments}</td>
+                                        <td>{truncateText(engine.location, 8)}</td>
+                                        <td>{truncateText(engine.installationPlace,8)}</td>
+                                        <td>{truncateText(engine.inventoryNumber, 8) }</td>
+                                        <td>{truncateText(engine.accountNumber,8) }</td>
+                                        <td>{truncateText(engine.type, 8)}</td>
+                                        <td>{truncateText(engine.power, 8) } кВт</td>
+                                        <td>{truncateText(engine.coupling, 8)}</td>
+                                        <td>{truncateText(engine.status, 8)}</td>
+                                        <td>{truncateText(engine.comments, 8)}</td>
                                         <td>{engine.date}</td>
                                     </>
                                 );
