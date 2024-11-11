@@ -12,15 +12,15 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const configPath = pathToFileURL(resolve(__dirname, 'config.js')); // Преобразование в URL с протоколом file://
+const configPath = pathToFileURL(resolve(__dirname, 'serverConfig.js'));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(cors());
 
-// Проверяем наличие файла config.js
+// Проверяем наличие файла serverConfig.js
 if (!fs.existsSync(configPath)) {
-    console.log('Запуск сервера не удался, файл config.js не существует. Пожалуйста, создайте его по примеру файла example.txt в корне папки server');
+    console.log('Запуск сервера не удался, файл serverConfig.js не существует. Пожалуйста, создайте его по примеру файла server/example.txt');
     process.exit(1); // Останавливаем сервер
 }
 

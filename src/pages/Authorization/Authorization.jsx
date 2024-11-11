@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthContext.jsx';
-import config from '../../../server/config.js';
+import clientConfig from '../../clientConfig.js';
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -13,7 +13,7 @@ function LoginPage() {
         e.preventDefault();
 
         try {
-            const response = await axios.post(`http://${config.serverIP}/login`, { username, password });
+            const response = await axios.post(`http://${clientConfig.serverIP}/login`, { username, password });
             if (response.data.status === 'success') {
                 console.log('Успешно вошли!');
                 login({ username });

@@ -10,14 +10,13 @@ import { useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
 import FormSelect from "../../components/Forms/FormSelect/FormSelect.jsx";
 import FormControl from "../../components/Forms/FormControl/FormControl.jsx";
-
 import { Link, useParams } from "react-router-dom";
 import UniversalModal from "../../components/Modals/UniversalModal/UniversalModal.jsx";
 import { fetchData, getApiDataSearch, getFetchData } from "../../../Validation.js";
 import FileUpload from "../../components/Forms/FileUpload/FileUpload.jsx";
 import SuccessModal from "../../components/Modals/SuccessModal/SuccessModal.jsx";
 import SyncSelectMenu from "../../components/Forms/SyncSelectMenu/SyncSelectMenu.jsx";
-import config from '../../../server/config.js';
+import clientConfig from '../../clientConfig.js';
 
 
 function EnginePassport() {
@@ -40,7 +39,7 @@ function EnginePassport() {
         historyOfTheRepair: ['']})
     const [positions,setPositions] = useState( [''])
     const [installationLocations,setInstallationLocations] = useState([''])
-    const serverIP = config.serverIP
+    const serverIP = clientConfig.serverIP
     const closeUniversalModal = () => setShowSuccessModal(false);
     const handleDataSubmission = () => {
         setShowModal(false);
